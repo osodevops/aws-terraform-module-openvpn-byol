@@ -1,0 +1,24 @@
+# Created by .ignore support plugin (hsz.mobi)
+### Example user template
+
+# IntelliJ project files
+.idea
+*.iml
+.terraform
+*.tfplan
+*.tfstate
+*.tfstate.*
+.DS_Store
+*.retry
+*.pyc
+*.jar
+*.stackdump
+*.pem
+
+aric*.zip
+id_rsa*
+lambda-backup.zip
+.vscode
+.vagrant/
+*un~
+*~
