@@ -29,9 +29,14 @@ resource "aws_autoscaling_group" "openvpn" {
 
   tags = [
     {
-      "key" = "Name"
-      "value" = "${var.environment}-OPENVPN-EC2"
-      "propagate_at_launch" = true
+      key = "Name"
+      value = "${var.environment}-OPENVPN-EC2"
+      propagate_at_launch = true
+    },
+    {
+      key = "backup"
+      value = "daily"
+      propagate_at_launch = true
     }
   ]
 }
