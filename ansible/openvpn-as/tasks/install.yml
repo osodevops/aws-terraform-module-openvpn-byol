@@ -1,0 +1,61 @@
+---
+
+- name: Install | Create package location
+  file:
+    path: "{{ openvpn_pkg_dir }}"
+    state: directory
+    mode: 0644
+
+- name: Install | Download openvpnas for Ubuntu
+  get_url:
+    url: "{{ openvpnas_deb_url }}"
+    dest: "{{ openvpn_pkg_dir }}/openvpn-as.deb"
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Install | Download openvpnas for Centos
+  get_url:
+    url: "{{ openvpnas_cent_url }}"
+    dest:  "{{ openvpn_pkg_dir }}/openvpn-as.rpm"
+  when: ansible_distribution == 'CentOS'
+
+- name: Install | Install OpenVPN AS for Ubuntu
+  apt:
+    deb: "{{ openvpn_pkg_dir }}/openvpn-as.deb"
+    state: present
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Install | Install OpenVPN AS for Centos
+  yum:
+    name: "{{ openvpn_pkg_dir }}/openvpn-as.rpm"
+    state: present
+  when: ansible_distribution == 'CentOS'
+
+- name: Install | Check that Openvpn is running
+  systemd:
+    name: openvpnas
+    state: started
+  register: openvpn_running
+
+- name: Install | Initialize OpenVPN with the default config
+  shell: /usr/local/openvpn_as/bin/ovpn-init --force --batch >> /usr/local/openvpn_as/force_init_run.logwith
+  args:
+    creates: /usr/local/openvpn_as/force_init_run.log
+  when: openvpn_running.changed
+  register: default_config
+
+- name: Config | Configure openvpn-as hostname
+  command: /usr/local/openvpn_as/scripts/sacli --key "host.name" --value "{{ hostname }}" ConfigPut
+  when: default_config.changed
+
+- name: Install | Update openvpn password to allow access to the web console
+  user:
+    name: "{{ openvpn_server_user }}"
+    password: "{{ openvpn_server_password }}"
+  register: server_user
+
+- name: Install | Ensure openvpnas is started/stopped
+  systemd:
+    name: openvpnas
+    state: "{{ openvpnas_service_state }}"
+    enabled: "{{ openvpnas_service_enabled }}"
+  when: server_user.changed

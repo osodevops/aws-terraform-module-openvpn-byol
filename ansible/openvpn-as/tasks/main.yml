@@ -1,0 +1,25 @@
+---
+
+- name: Install OpenVPN-AS
+  include: install.yml
+  tags:
+    - install
+  when: ( first_time_setup|bool )
+
+#- name: Configure OpenVPN-AS
+#  include: config.yml
+#  tags:
+#    - config
+#  when: ( apply_config|bool )
+#
+#- name: Migrate Database to MySQL(RDS or local)
+#  include: db_migration.yml
+#  tags:
+#    - database
+#  when: ( migrate_database|bool )
+#
+#- name: Setup SSL certificate
+#  include: certbot.yml
+#  tags:
+#    - ssl
+#  when: ( use_ssl|bool )
