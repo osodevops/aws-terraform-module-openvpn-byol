@@ -74,7 +74,8 @@ variable "s3_bucket_acl" {
 }
 
 variable "s3_bucket_force_destroy" {}
-variable "s3_bucket_name" {}
+variable "s3_bucket_name_ansible" {}
+variable "s3_bucket_name_output" {}
 variable "s3_bucket_policy" {}
 
 locals {

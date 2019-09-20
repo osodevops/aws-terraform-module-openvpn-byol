@@ -18,8 +18,10 @@
 #    - database
 #  when: ( migrate_database|bool )
 #
-#- name: Setup SSL certificate
-#  include: certbot.yml
-#  tags:
-#    - ssl
-#  when: ( use_ssl|bool )
+
+- name: Setup SSL certificate
+  include: certbot.yml
+  tags:
+    - ssl
+  when: ( use_ssl|bool )
+  notify: Stop openvpn
