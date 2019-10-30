@@ -73,7 +73,7 @@ resource "aws_ssm_association" "db_migration_ansible_playbook" {
 
   schedule_expression = "rate(30 minutes)"
 
-  targets {
+  targets = {
     key    = "InstanceIds"
     values = ${data.aws_instance.nodes.id}
   }
@@ -92,7 +92,7 @@ resource "aws_ssm_association" "ssl_ansible_playbook" {
 
   schedule_expression = "rate(30 minutes)"
 
-  targets {
+  targets = {
     key    = "InstanceIds"
     values = ${data.aws_instance.nodes.id}
   }
