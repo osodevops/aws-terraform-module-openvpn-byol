@@ -44,9 +44,9 @@ data "template_file" "ssl_ansible_playbook" {
 resource "null_resource" "migration_ansible_delay" {
   count = var.run_playbook == "db_migration" ? 0 : 1
 
-  triggers = {
-    ans_instance_ids = join(",", data.aws_instance.nodes.id)
-  }
+  # triggers = {
+  #   ans_instance_ids = join(",", data.aws_instance.nodes.id)
+  # }
 
   provisioner "local-exec" {
     command = "sleep 90"
@@ -57,9 +57,9 @@ resource "null_resource" "migration_ansible_delay" {
 resource "null_resource" "ssl_ansible_delay" {
   count = var.run_playbook == "ssl" ? 0 : 1
 
-  triggers = {
-    ans_instance_ids = join(",", data.aws_instance.nodes.id)
-  }
+  # triggers = {
+  #   ans_instance_ids = join(",", data.aws_instance.nodes.id)
+  # }
 
   provisioner "local-exec" {
     command = "sleep 90"
