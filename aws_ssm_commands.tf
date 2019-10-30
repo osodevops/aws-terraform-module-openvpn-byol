@@ -75,7 +75,7 @@ resource "aws_ssm_association" "db_migration_ansible_playbook" {
 
   targets {
     key    = "InstanceIds"
-    values = "aws_instance.nodes.*.id"
+    values = ${data.aws_instance.nodes.id}
   }
 
   parameters = {
@@ -94,7 +94,7 @@ resource "aws_ssm_association" "ssl_ansible_playbook" {
 
   targets {
     key    = "InstanceIds"
-    values = "aws_instance.nodes.*.id"
+    values = ${data.aws_instance.nodes.id}
   }
 
   parameters = {
