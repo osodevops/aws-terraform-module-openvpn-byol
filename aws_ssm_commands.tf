@@ -66,10 +66,10 @@ resource "null_resource" "ssl_ansible_delay" {
   }
 }
 
-resource "aws_ssm_association" "apiary_readwrite_playbook" {
+resource "aws_ssm_association" "db_migration_ansible_playbook" {
   count            = "${var.run_playbook == "db_migration" ? 0 : 1}"
   name             = "AWS-RunAnsiblePlaybook"
-  association_name = "${local.instance_alias}-readwrite-playbook"
+  association_name = "db_migration_ansible_playbook"
 
   schedule_expression = "rate(30 minutes)"
 
@@ -85,10 +85,10 @@ resource "aws_ssm_association" "apiary_readwrite_playbook" {
   depends_on = ["null_resource.migration_ansible_delay"]
 }
 
-resource "aws_ssm_association" "apiary_readwrite_playbook" {
+resource "aws_ssm_association" "ssl_ansible_playbook" {
   count            = "${var.run_playbook == "ssl" ? 0 : 1}"
   name             = "AWS-RunAnsiblePlaybook"
-  association_name = "${local.instance_alias}-readwrite-playbook"
+  association_name = "ssl_ansible_playbook"
 
   schedule_expression = "rate(30 minutes)"
 
