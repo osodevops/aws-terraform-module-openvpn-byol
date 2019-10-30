@@ -45,7 +45,7 @@ resource "null_resource" "migration_ansible_delay" {
   count = var.run_playbook == "db_migration" ? 0 : 1
 
   triggers = {
-    ans_instance_ids = join(",", aws_instance.nodes.*.id)
+    ans_instance_ids = join(",", data.aws_instance.nodes.id)
   }
 
   provisioner "local-exec" {
@@ -58,7 +58,7 @@ resource "null_resource" "ssl_ansible_delay" {
   count = var.run_playbook == "ssl" ? 0 : 1
 
   triggers = {
-    ans_instance_ids = join(",", aws_instance.nodes.*.id)
+    ans_instance_ids = join(",", data.aws_instance.nodes.id)
   }
 
   provisioner "local-exec" {
