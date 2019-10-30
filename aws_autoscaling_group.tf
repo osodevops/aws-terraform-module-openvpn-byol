@@ -6,7 +6,7 @@ resource "aws_launch_configuration" "openvpn_launch_config" {
   security_groups             = [aws_security_group.openvpn-sg.id]
   associate_public_ip_address = true
   key_name                    = var.key_name
-  user_data                   = element(data.template_file.user_data.*.rendered, count.index)
+  user_data                   = data.template_file.user_data.rendered
 
   lifecycle {
     create_before_destroy = true
