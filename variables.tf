@@ -148,3 +148,7 @@ variable "epel_repo_url" {
   description = "Set the Epel repo url"
   default = "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
 }
+
+variable "run_playbook" {
+  description = "Set which playbooks should be run against the OpenVPN server"
+}
