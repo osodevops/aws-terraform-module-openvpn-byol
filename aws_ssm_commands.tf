@@ -1,7 +1,7 @@
 data "aws_instances" "nodes" {
   depends_on = ["aws_autoscaling_group.openvpn"]
   instance_tags = {
-    Name = "${upper(${var.environment})}-OPENVPN-EC2"
+    Name = "${upper(var.environment)}-OPENVPN-EC2"
   }
   instance_state_names = ["running"]
 }
@@ -20,10 +20,10 @@ data "template_file" "db_migration_ansible_playbook" {
     mariadb_repo_enable       = "${var.mariadb_repo_enable}"
     mariadb_repo_gpgcheck     = "${var.mariadb_repo_gpgcheck}"
     mariadb_repo_gpg_url      = "${var.mariadb_repo_gpg_url}"
-    openvpn_database_user     = "${var.openvpn_database_user}"
-    openvpn_database_password = "${var.openvpn_database_password}"
-    openvpn_database_host     = "${var.openvpn_database_host}"
-    openvpn_database_port     = "${var.openvpn_database_port}"
+    openvpn_database_user     = "${var.rds_master_name}"
+    openvpn_database_password = "${var.rds_master_password}"
+    openvpn_database_port     = "${var.rds_port}"
+    openvpn_database_host     = "${aws_rds_cluster.db_cluster.endpoint}"
   }
 }
 
@@ -103,4 +103,3 @@ resource "aws_ssm_association" "apiary_readwrite_playbook" {
 
   depends_on = ["null_resource.ssl_ansible_delay"]
 }
-

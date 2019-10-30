@@ -11,6 +11,22 @@ variable "rds_master_password" {
   type = "string"
 }
 
+variable "rds_database_name" {
+  default = "openvpndb"
+}
+
+variable "rds_cluster_identifier" {
+  default = "openvpn-database-cluster"
+}
+
+variable "rds_final_snapshot" {
+  default = "openvpn-db-snapshot-final"
+}
+
+variable "rds_port" {
+  default = "3306"
+}
+
 variable "rds_backup_retention_period" {
   type = "string"
   default = "7"
@@ -87,4 +103,48 @@ variable "bucket_versioning" {
 
 variable "s3_sse_algorithm" {
   default = "AES256"
+}
+
+# Ansible DB Migration
+variable "mariadb_repo_url" {
+  description = "Set the MariaDB Repo URL"
+  default = "http://yum.mariadb.org/10.1/centos7-amd64"
+}          
+variable "mariadb_repo_enable" {
+  description = "Enable the MariaDB repo"
+  default = "yes"
+}
+variable "mariadb_repo_gpgcheck" {
+  description = "Check the GPG key"
+  default = "yes"
+}
+variable "mariadb_repo_gpg_url" {
+  description = "Set the MariaDB repo GPG URL"
+  default = "https://yum.mariadb.org/RPM-GPG-KEY-MariaDB"
+}
+variable "openvpn_database_user" {
+  description = "Set the name of the OpenVPN database user"
+  default = "openvpn-db-user"
+}
+# Ansible SSL playbook
+variable "openvpn_dns_name" {
+  description = ""
+}
+variable "ec2_hostname" {
+  description = ""
+}
+variable "ssl_admin_email" {
+  description = "set the email for the certbot ssl"
+}
+variable "epel_repofile_path" {
+  description = "Set the epel repo path"
+  default = "/etc/yum.repos.d/epel.repo"
+}
+variable "epel_repo_gpg_key_url" {
+  description = "Set the repo gpg key"
+  default = "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7"
+  }
+variable "epel_repo_url" {
+  description = "Set the Epel repo url"
+  default = "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
 }
