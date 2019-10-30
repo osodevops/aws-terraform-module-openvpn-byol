@@ -30,26 +30,26 @@ data "aws_iam_policy_document" "openvpn_eip" {
 
 resource "aws_iam_role" "openvpn_role" {
   name               = "openvpn-iam-role"
-  assume_role_policy = "${data.aws_iam_policy_document.openvpn_assume_role.json}"
+  assume_role_policy = data.aws_iam_policy_document.openvpn_assume_role.json
 }
 
 resource "aws_iam_policy" "openvpn_policy" {
   name        = "openvpn-iam-policy"
   description = "Allows the openvpn server to attach an EIP"
-  policy      = "${data.aws_iam_policy_document.openvpn_eip.json}"
+  policy      = data.aws_iam_policy_document.openvpn_eip.json
 }
 
 resource "aws_iam_instance_profile" "openvpn_profile" {
   name = "openvpn-instance-profile"
-  role = "${aws_iam_role.openvpn_role.name}"
+  role = aws_iam_role.openvpn_role.name
 }
 
 resource "aws_iam_role_policy_attachment" "openvpn_attach" {
-  role       = "${aws_iam_role.openvpn_role.name}"
-  policy_arn = "${aws_iam_policy.openvpn_policy.arn}"
+  role       = aws_iam_role.openvpn_role.name
+  policy_arn = aws_iam_policy.openvpn_policy.arn
 }
 
 resource "aws_iam_role_policy_attachment" "ssm_attach" {
-  role       = "${aws_iam_role.openvpn_role.name}"
+  role       = aws_iam_role.openvpn_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }

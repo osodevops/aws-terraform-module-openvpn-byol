@@ -1,5 +1,5 @@
 resource "aws_s3_bucket_policy" "bucket_policy" {
-  bucket = "${aws_s3_bucket.ssm_ansible_bucket.id}"
+  bucket = aws_s3_bucket.ssm_ansible_bucket.id
   policy = <<POLICY
 {
   "Version": "2012-10-17",
@@ -21,4 +21,6 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
   ]
 }
 POLICY
+
 }
+

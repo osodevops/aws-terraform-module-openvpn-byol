@@ -1,7 +1,7 @@
 resource "aws_security_group" "openvpn-sg" {
   name        = "${var.environment}-OPENVPN-AS-SG"
   description = "Security group for all public internet traffic to the Openvpn server"
-  vpc_id      = "${var.vpc_id}"
+  vpc_id      = var.vpc_id
 
   # Client GUI
   ingress {
@@ -35,19 +35,18 @@ resource "aws_security_group" "openvpn-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags {
+  tags = {
     Name = "${var.environment}-OPENVPN-AS-SG"
   }
 }
 
 resource "aws_security_group" "openvpn-rds-sg" {
-  depends_on = [
-    "aws_security_group.openvpn-sg"]
-  name = "${var.environment}-OPENVPN-RDS-SG"
+  depends_on  = [aws_security_group.openvpn-sg]
+  name        = "${var.environment}-OPENVPN-RDS-SG"
   description = "Security group for traffic to the OpenVPN RDS backend"
-  vpc_id = "${var.vpc_id}"
+  vpc_id      = var.vpc_id
 
-  tags {
+  tags = {
     Name = "${var.environment}-OPENVPN-RDS-SG"
   }
 }
@@ -57,6 +56,7 @@ resource "aws_security_group_rule" "openvpn-rds-ingress" {
   from_port                = 3306
   to_port                  = 3306
   protocol                 = "tcp"
-  security_group_id        = "${aws_security_group.openvpn-rds-sg.id}"
-  source_security_group_id = "${aws_security_group.openvpn-sg.id}"
+  security_group_id        = aws_security_group.openvpn-rds-sg.id
+  source_security_group_id = aws_security_group.openvpn-sg.id
 }
+
