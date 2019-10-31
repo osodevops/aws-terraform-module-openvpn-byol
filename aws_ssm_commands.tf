@@ -74,8 +74,8 @@ resource "aws_ssm_association" "db_migration_ansible_playbook" {
   schedule_expression = "rate(30 minutes)"
 
   targets {
-    key    = "InstanceIds"
-    values = data.aws_instances.nodes.*.id
+    key    = "tag:Name"
+    values = ["${var.environment}-OPENVPN-EC2"]
   }
 
   parameters = {
@@ -93,8 +93,8 @@ resource "aws_ssm_association" "ssl_ansible_playbook" {
   schedule_expression = "rate(30 minutes)"
 
   targets {
-    key    = "InstanceIds"
-    values = data.aws_instances.nodes.*.id
+    key    = "tag:Name"
+    values = ["${var.environment}-OPENVPN-EC2"]
   }
 
   parameters = {
