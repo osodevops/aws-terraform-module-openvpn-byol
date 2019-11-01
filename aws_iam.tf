@@ -3,7 +3,10 @@
 data "aws_iam_policy_document" "openvpn_assume_role" {
   statement {
     principals {
-      identifiers = ["ec2.amazonaws.com"]
+      identifiers = [
+        "ec2.amazonaws.com",
+        "ssm.amazonaws.com"
+        ]
       type        = "Service"
     }
 
