@@ -61,22 +61,22 @@ resource "aws_iam_role_policy_attachment" "openvpn_attach" {
   policy_arn = aws_iam_policy.openvpn_policy.arn
 }
 
-resource "aws_iam_role_policy_attachment" "ssm_attach" {
+resource "aws_iam_role_policy_attachment" "ssm_attach_ssm_core" {
   role       = aws_iam_role.openvpn_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
-resource "aws_iam_role_policy_attachment" "ssm_attach" {
+resource "aws_iam_role_policy_attachment" "ssm_attach_ec2_role" {
   role       = aws_iam_role.openvpn_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
 }
 
-resource "aws_iam_role_policy_attachment" "ssm_attach" {
+resource "aws_iam_role_policy_attachment" "ssm_attach_clw_agent" {
   role       = aws_iam_role.openvpn_role.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
 
-resource "aws_iam_role_policy_attachment" "ssm_attach" {
+resource "aws_iam_role_policy_attachment" "ssm_attach_clw_logs" {
   role       = aws_iam_role.openvpn_role.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
 }
