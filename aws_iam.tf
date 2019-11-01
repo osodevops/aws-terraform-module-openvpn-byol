@@ -26,6 +26,18 @@ data "aws_iam_policy_document" "openvpn_eip" {
     resources = ["*"]
     effect    = "Allow"
   }
+
+  statement {
+    actions = [
+      "s3:ListBucket",
+      "s3:HeadBucket",
+      "s3:ListObjects",
+      "s3:GetObject"
+    ]
+
+    resources = ["arn:aws:s3:::*"]
+    effect    = "Allow"
+  }
 }
 
 resource "aws_iam_role" "openvpn_role" {
@@ -53,3 +65,19 @@ resource "aws_iam_role_policy_attachment" "ssm_attach" {
   role       = aws_iam_role.openvpn_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
+
+resource "aws_iam_role_policy_attachment" "ssm_attach" {
+  role       = aws_iam_role.openvpn_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_attach" {
+  role       = aws_iam_role.openvpn_role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_attach" {
+  role       = aws_iam_role.openvpn_role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+}
+
