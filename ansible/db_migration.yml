@@ -2,15 +2,15 @@
 - hosts: 127.0.0.1
   vars:
     # Maria DB Repo details | Only for CentOS
-    MariaDB_repo_url: http://yum.mariadb.org/10.1/centos7-amd64
-    MariaDB_repo_enable: yes
-    MariaDB_repo_gpgcheck: yes
-    MariaDB_repo_gpg_url: https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+    MariaDB_repo_url: ${mariadb_repo_url}
+    MariaDB_repo_enable: ${mariadb_repo_enable}
+    MariaDB_repo_gpgcheck: ${mariadb_repo_gpgcheck}
+    MariaDB_repo_gpg_url: ${mariadb_repo_gpg_url}
     # OpenVPN Database Details | You need RDS setup to use these!
-    openvpn_database_user: openvpn-db-user
-    openvpn_database_password: welcome1
-    openvpn_database_host: 127.0.0.1
-    openvpn_database_port: 3306
+    openvpn_database_user: ${openvpn_database_user}
+    openvpn_database_password: ${openvpn_database_password}
+    openvpn_database_host: ${openvpn_database_port}
+    openvpn_database_port: ${openvpn_database_host}
     openvpn_database_url: "{{ openvpn_database_host }}:{{ openvpn_database_port }}"
     openvpn_databases:
       - as_certs
