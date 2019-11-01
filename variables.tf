@@ -54,6 +54,18 @@ variable "rds_storage_encrypted" {
   default = true
 }
 
+variable "iam_role_name" {
+  default = "openvpn-iam-role"
+}
+
+variable "iam_policy_name" {
+  default = "openvpn-iam-policy"
+}
+
+variable "iam_instance_profile_name" {
+  default = "openvpn-instance-profile"
+}
+
 variable "key_name" {
   type        = string
   description = "Set the EC2 Key name"
