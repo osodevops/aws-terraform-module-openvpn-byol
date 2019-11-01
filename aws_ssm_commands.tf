@@ -75,7 +75,7 @@ resource "aws_ssm_association" "db_migration_ansible_playbook" {
 
   targets {
     key    = "tag:Name"
-    values = ["${var.environment}-OPENVPN-EC2"]
+    values = ["${upper(var.environment)}-OPENVPN-EC2"]
   }
 
   parameters = {
@@ -94,7 +94,7 @@ resource "aws_ssm_association" "ssl_ansible_playbook" {
 
   targets {
     key    = "tag:Name"
-    values = ["${var.environment}-OPENVPN-EC2"]
+    values = ["${upper(var.environment)}-OPENVPN-EC2"]
   }
 
   parameters = {
