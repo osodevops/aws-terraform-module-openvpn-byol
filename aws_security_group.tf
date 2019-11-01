@@ -1,5 +1,5 @@
 resource "aws_security_group" "openvpn-sg" {
-  name        = "${var.environment}-OPENVPN-AS-SG"
+  name        = "${upper(var.environment)}-OPENVPN-AS-SG"
   description = "Security group for all public internet traffic to the Openvpn server"
   vpc_id      = var.vpc_id
 
@@ -42,12 +42,12 @@ resource "aws_security_group" "openvpn-sg" {
 
 resource "aws_security_group" "openvpn-rds-sg" {
   depends_on  = [aws_security_group.openvpn-sg]
-  name        = "${var.environment}-OPENVPN-RDS-SG"
+  name        = "${upper(var.environment)}-OPENVPN-RDS-SG"
   description = "Security group for traffic to the OpenVPN RDS backend"
   vpc_id      = var.vpc_id
 
   tags = {
-    Name = "${var.environment}-OPENVPN-RDS-SG"
+    Name = "${upper(var.environment)}-OPENVPN-RDS-SG"
   }
 }
 

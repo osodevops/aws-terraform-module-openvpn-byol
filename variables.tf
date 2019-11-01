@@ -19,6 +19,14 @@ variable "rds_cluster_identifier" {
   default = "openvpn-database-cluster"
 }
 
+variable "rds_instance_name" {
+  default = "openvpn-database-instance"
+}
+
+variable "rds_subnet_group" {
+  default = "openvpn-db-subnet-group"
+}
+
 variable "rds_final_snapshot" {
   default = "openvpn-db-snapshot-final"
 }

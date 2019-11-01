@@ -1,5 +1,5 @@
 resource "aws_launch_configuration" "openvpn_launch_config" {
-  name_prefix                 = "${var.environment}-OPENVPN-AS-"
+  name_prefix                 = "${upper(var.environment)}-OPENVPN-AS-"
   image_id                    = var.ec2_image_id
   instance_type               = var.ec2_instance_type
   iam_instance_profile        = aws_iam_instance_profile.openvpn_profile.name
@@ -14,7 +14,7 @@ resource "aws_launch_configuration" "openvpn_launch_config" {
 }
 
 resource "aws_autoscaling_group" "openvpn" {
-  name                 = "${var.environment}-OPENVPN-AS-ASG"
+  name                 = "${upper(var.environment)}-OPENVPN-AS-ASG"
   launch_configuration = aws_launch_configuration.openvpn_launch_config.name
   vpc_zone_identifier  = data.aws_subnet_ids.public.ids
   min_size             = 1
@@ -28,7 +28,7 @@ resource "aws_autoscaling_group" "openvpn" {
   tags = [
     {
       key                 = "Name"
-      value               = "${var.environment}-OPENVPN-EC2"
+      value               = "${upper(var.environment)}-OPENVPN-EC2"
       propagate_at_launch = true
     },
   ]

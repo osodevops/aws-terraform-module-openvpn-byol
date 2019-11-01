@@ -1,10 +1,10 @@
 resource "aws_rds_cluster_instance" "db_instance" {
   count                = 1
-  identifier           = "openvpn-database-instance"
-  cluster_identifier   = aws_rds_cluster.db_cluster.id
-  instance_class       = var.db_instance_type
+  identifier           = "${var.rds_instance_name}"
+  cluster_identifier   = "${aws_rds_cluster.db_cluster.id}"
+  instance_class       = "${var.db_instance_type}"
   publicly_accessible  = false
-  db_subnet_group_name = aws_db_subnet_group.db_subnet_group.id
+  db_subnet_group_name = "${aws_db_subnet_group.db_subnet_group.id}"
   tags = merge(
     var.common_tags,
     {
