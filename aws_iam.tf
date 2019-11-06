@@ -41,6 +41,15 @@ data "aws_iam_policy_document" "openvpn_eip" {
     resources = ["arn:aws:s3:::*"]
     effect    = "Allow"
   }
+
+  statement {
+    actions = [
+      "route53:ChangeResourceRecordSets"
+    ]
+
+    resources = ["arn:aws:route53:::hostedzone/${var.r53_hosted_zone_id}"]
+    effect = "Allow"
+  }
 }
 
 resource "aws_iam_role" "openvpn_role" {
