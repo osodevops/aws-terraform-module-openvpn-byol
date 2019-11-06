@@ -82,8 +82,9 @@ resource "aws_ssm_association" "db_migration_ansible_playbook" {
     playbook = data.template_file.db_migration_ansible_playbook.rendered
   }
 
-  output_location = {
-    s3_bucket_name = "${aws_s3_bucket.ssm_ansible_bucket.id}"  
+  output_location {
+    s3_bucket_name = "${aws_s3_bucket.ssm_ansible_bucket.id}"
+    s3_key_prefix  = "logs"
   }
 
   depends_on = [null_resource.migration_ansible_delay]
@@ -105,8 +106,9 @@ resource "aws_ssm_association" "ssl_ansible_playbook" {
     playbook = data.template_file.ssl_ansible_playbook.rendered
   }
 
-  output_location = {
+  output_location {
     s3_bucket_name = "${aws_s3_bucket.ssm_ansible_bucket.id}"
+    s3_key_prefix  = "logs"
   }
 
   depends_on = [null_resource.ssl_ansible_delay]
