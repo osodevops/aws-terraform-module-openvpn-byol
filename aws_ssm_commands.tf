@@ -63,45 +63,6 @@ data "template_file" "update_ansible_playbook" {
   }
 }
 
-# #to delay ssm assiociation till ansible is installed
-# resource "null_resource" "migration_ansible_delay" {
-#   count = var.run_playbook == "db_migration" ? 0 : 1
-
-#    triggers = {
-#      ans_instance_ids = join(",", data.aws_instances.nodes.*.id)
-#    }
-
-#   provisioner "local-exec" {
-#     command = "sleep 90"
-#   }
-# }
-
-# #to delay ssm assiociation till ansible is installed
-# resource "null_resource" "ssl_ansible_delay" {
-#   count = var.run_playbook == "ssl" ? 0 : 1
-
-#   triggers = {
-#     ans_instance_ids = join(",", data.aws_instances.nodes.*.id)
-#   }
-
-#   provisioner "local-exec" {
-#     command = "sleep 90"
-#   }
-# }
-
-# #to delay ssm assiociation till ansible is installed
-# resource "null_resource" "update_ansible_delay" {
-#   count = var.run_playbook == "update" ? 0 : 1
-
-#   triggers = {
-#     ans_instance_ids = join(",", data.aws_instances.nodes.*.id)
-#   }
-
-#   provisioner "local-exec" {
-#     command = "sleep 90"
-#   }
-# }
-
 resource "aws_ssm_association" "db_migration_ansible_playbook" {
   count            = "${var.run_db_migration_playbook ? 1 : 0}"
   name             = "AWS-RunAnsiblePlaybook"
@@ -122,8 +83,6 @@ resource "aws_ssm_association" "db_migration_ansible_playbook" {
     s3_bucket_name = "${aws_s3_bucket.ssm_ansible_bucket.id}"
     s3_key_prefix  = "logs"
   }
-
-  # depends_on = [null_resource.migration_ansible_delay]
 }
 
 resource "aws_ssm_association" "db_restore_ansible_playbook" {
@@ -146,8 +105,6 @@ resource "aws_ssm_association" "db_restore_ansible_playbook" {
     s3_bucket_name = "${aws_s3_bucket.ssm_ansible_bucket.id}"
     s3_key_prefix  = "logs"
   }
-
-  # depends_on = [null_resource.migration_ansible_delay]
 }
 
 resource "aws_ssm_association" "ssl_ansible_playbook" {
@@ -170,8 +127,6 @@ resource "aws_ssm_association" "ssl_ansible_playbook" {
     s3_bucket_name = "${aws_s3_bucket.ssm_ansible_bucket.id}"
     s3_key_prefix  = "logs"
   }
-
-  # depends_on = [null_resource.ssl_ansible_delay]
 }
 
 resource "aws_ssm_association" "update_ansible_playbook" {
@@ -194,6 +149,4 @@ resource "aws_ssm_association" "update_ansible_playbook" {
     s3_bucket_name = "${aws_s3_bucket.ssm_ansible_bucket.id}"
     s3_key_prefix  = "logs"
   }
-
-  # depends_on = [null_resource.update_ansible_delay]
 }

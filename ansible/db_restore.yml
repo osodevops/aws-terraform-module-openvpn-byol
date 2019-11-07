@@ -37,14 +37,6 @@
       - MariaDB-client
       - mariadb-libs
       - MySQL-python
-
-  # - name: copy .my.cnf file with credentials
-  #   template:
-  #     src: templates/root/.my.j2
-  #     dest: ~/.my.cnf
-  #     owner: root
-  #     mode: 0600
-  #   register: db_creds
   
   - name: Copy .my.cnf file with credentials
     copy:
@@ -154,15 +146,6 @@
         vpn.server.group=openvpn_as
     when: openvpn_stopped.changed
     register: config_updated
-
-  # - name: Use MySQL database settings
-  #   template:
-  #     src: as.j2
-  #     dest: /usr/local/openvpn_as/etc/as.conf
-  #     mode: 0644
-  #     owner: root
-  #   when: openvpn_stopped.changed
-  #   register: config_updated
 
   - name: Start openvpnas server for after migration
     systemd:
