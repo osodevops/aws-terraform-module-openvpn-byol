@@ -10,9 +10,8 @@
     # OpenVPN Database Details | You need RDS setup to use these!
     openvpn_database_user: ${openvpn_database_user}
     openvpn_database_password: ${openvpn_database_password}
-    openvpn_database_host: ${openvpn_database_port}
-    openvpn_database_port: ${openvpn_database_host}
-    openvpn_database_url: "{{ openvpn_database_host }}:{{ openvpn_database_port }}"
+    openvpn_database_host: ${openvpn_database_host}
+    openvpn_database_port: ${openvpn_database_port}
     openvpn_databases:
       - as_certs
       - as_userprop
@@ -40,13 +39,14 @@
   
   - name: Copy .my.cnf file with credentials
     copy:
-      dest: ~/.my.cnf
+      dest: /etc/.my.cnf
       owner: root
       mode: 0600
       content: |
         [client]
         user={{ openvpn_database_user }}
         password={{ openvpn_database_password }}
+        port={{ openvpn_database_port }}
     register: db_creds  
 
   - name: Stop Openvpn server for to update DB credentials
@@ -76,13 +76,13 @@
         # enable client gateway
         sa.show_c2s_routes=true
         # certificates database
-        certs_db=mysql://{{ openvpn_database_user }}:{{ openvpn_database_password }}@{{ openvpn_database_url }}/as_certs
+        certs_db=mysql://{{ openvpn_database_host }}/as_certs
         # user properties DB
-        user_prop_db=mysql://{{ openvpn_database_user }}:{{ openvpn_database_password }}@{{ openvpn_database_url }}/as_userprop
+        user_prop_db=mysql://{{ openvpn_database_host }}/as_userprop
         # configuration DB
-        config_db=mysql://{{ openvpn_database_user }}:{{ openvpn_database_password }}@{{ openvpn_database_url }}/as_config
+        config_db=mysql://{{ openvpn_database_host }}/as_config
         # log DB
-        log_db=mysql://{{ openvpn_database_user }}:{{ openvpn_database_password }}@{{ openvpn_database_url }}/as_log
+        log_db=mysql://{{ openvpn_database_host }}/as_log
         # wait this many seconds between failed retries
         db_retry.interval=2
         # how many retries to attempt before failing
