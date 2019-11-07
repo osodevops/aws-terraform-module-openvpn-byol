@@ -28,7 +28,6 @@
       gpgcheck: "{{ MariaDB_repo_gpgcheck }}"
       gpgkey: "{{ MariaDB_repo_gpg_url }}"
     register: mariadb_repo
-    when: ansible_distribution == 'CentOS'
 
   - name: Install MariaDB Client
     yum:
@@ -38,7 +37,6 @@
       - MariaDB-client
       - mariadb-libs
       - MySQL-python
-    when: ansible_distribution == 'CentOS'
 
   - name: copy .my.cnf file with credentials
     template:
