@@ -1,5 +1,6 @@
 ---
 - hosts: 127.0.0.1
+  gather_facts: true
   vars:
     # EPEL Repo details | Only for CentOS
     epel_repo_url: ${epel_repo_url}

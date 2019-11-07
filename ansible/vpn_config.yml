@@ -1,5 +1,6 @@
 ---
 - hosts: 127.0.0.1
+  gather_facts: true
   vars:
   # OpenVPN Configuration Settings
   openvpnas_base_path: "/usr/local/openvpn_as"
@@ -15,7 +16,6 @@
     vpn.server.routing.gateway_access: "false"
     vpn.client.routing.reroute_dns: ""
     vpn.server.dhcp_option.dns.0: ""
-
   openvpn_ldap_config:
     auth.module.type: "ldap"
     auth.ldap.0.server.0.host: ""

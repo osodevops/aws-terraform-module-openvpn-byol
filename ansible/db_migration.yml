@@ -1,5 +1,6 @@
 ---
 - hosts: 127.0.0.1
+  gather_facts: true
   vars:
     # Maria DB Repo details | Only for CentOS
     MariaDB_repo_url: ${mariadb_repo_url}
@@ -17,7 +18,6 @@
       - as_userprop
       - as_config
       - as_log
-
   tasks:
   - name: Setup MariaDB repo for CentOS
     yum_repository:
