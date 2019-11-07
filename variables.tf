@@ -207,14 +207,6 @@ variable "run_update_server_playbook" {
   default = false
 }
 
-# variable "create_new_db" {
-#   default = true
-# }
-
-# variable "restore_db" {
-#   default = false
-# }
-
 variable "snapshot_identifier" {
   description = "Set the snapshot you want to restore from"
 }

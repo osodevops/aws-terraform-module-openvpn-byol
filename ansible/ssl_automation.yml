@@ -32,7 +32,13 @@
       yum:
         name: certbot
         state: present
-      notify: Stop VPN service
+      register: certbot_installed
+
+    - name: Certbot | Stop VPN service
+      systemd:
+        name: openvpnas
+        state: stopped
+      when: certbot_installed.changed
 
     - name: Cerbot | Request certificate
       command: certbot certonly --standalone -d {{ openvpn_server_domain }} --email {{ ssl_admin_email }} --agree-tos
