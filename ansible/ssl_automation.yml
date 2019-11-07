@@ -37,8 +37,7 @@
     - name: Certbot | Stop VPN service
       systemd:
         name: openvpnas
-        state: stopped
-      when: certbot_installed.changed
+        state: stoppped
 
     - name: Cerbot | Request certificate
       command: certbot certonly --standalone -d {{ openvpn_server_domain }} --email {{ ssl_admin_email }} --agree-tos

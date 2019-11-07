@@ -3,6 +3,14 @@ resource "aws_security_group" "openvpn-sg" {
   description = "Security group for all public internet traffic to the Openvpn server"
   vpc_id      = var.vpc_id
 
+  # Certbot Access
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   # Client GUI
   ingress {
     from_port   = 443
