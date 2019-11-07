@@ -27,6 +27,21 @@ data "template_file" "db_migration_ansible_playbook" {
   }
 }
 
+data "template_file" "db_restore_ansible_playbook" {
+  template = file("${path.module}/ansible/db_restore.yml")
+
+  vars = {
+    mariadb_repo_url          = var.mariadb_repo_url
+    mariadb_repo_enable       = var.mariadb_repo_enable
+    mariadb_repo_gpgcheck     = var.mariadb_repo_gpgcheck
+    mariadb_repo_gpg_url      = var.mariadb_repo_gpg_url
+    openvpn_database_user     = var.rds_master_name
+    openvpn_database_password = var.rds_master_password
+    openvpn_database_port     = var.rds_port
+    openvpn_database_host     = aws_rds_cluster_instance.db_instance[0].endpoint
+  }
+}
+
 data "template_file" "ssl_ansible_playbook" {
   template = file("${path.module}/ansible/ssl_automation.yml")
 
@@ -48,47 +63,47 @@ data "template_file" "update_ansible_playbook" {
   }
 }
 
-#to delay ssm assiociation till ansible is installed
-resource "null_resource" "migration_ansible_delay" {
-  count = var.run_playbook == "db_migration" ? 0 : 1
+# #to delay ssm assiociation till ansible is installed
+# resource "null_resource" "migration_ansible_delay" {
+#   count = var.run_playbook == "db_migration" ? 0 : 1
 
-   triggers = {
-     ans_instance_ids = join(",", data.aws_instances.nodes.*.id)
-   }
+#    triggers = {
+#      ans_instance_ids = join(",", data.aws_instances.nodes.*.id)
+#    }
 
-  provisioner "local-exec" {
-    command = "sleep 90"
-  }
-}
+#   provisioner "local-exec" {
+#     command = "sleep 90"
+#   }
+# }
 
-#to delay ssm assiociation till ansible is installed
-resource "null_resource" "ssl_ansible_delay" {
-  count = var.run_playbook == "ssl" ? 0 : 1
+# #to delay ssm assiociation till ansible is installed
+# resource "null_resource" "ssl_ansible_delay" {
+#   count = var.run_playbook == "ssl" ? 0 : 1
 
-  triggers = {
-    ans_instance_ids = join(",", data.aws_instances.nodes.*.id)
-  }
+#   triggers = {
+#     ans_instance_ids = join(",", data.aws_instances.nodes.*.id)
+#   }
 
-  provisioner "local-exec" {
-    command = "sleep 90"
-  }
-}
+#   provisioner "local-exec" {
+#     command = "sleep 90"
+#   }
+# }
 
-#to delay ssm assiociation till ansible is installed
-resource "null_resource" "update_ansible_delay" {
-  count = var.run_playbook == "update" ? 0 : 1
+# #to delay ssm assiociation till ansible is installed
+# resource "null_resource" "update_ansible_delay" {
+#   count = var.run_playbook == "update" ? 0 : 1
 
-  triggers = {
-    ans_instance_ids = join(",", data.aws_instances.nodes.*.id)
-  }
+#   triggers = {
+#     ans_instance_ids = join(",", data.aws_instances.nodes.*.id)
+#   }
 
-  provisioner "local-exec" {
-    command = "sleep 90"
-  }
-}
+#   provisioner "local-exec" {
+#     command = "sleep 90"
+#   }
+# }
 
 resource "aws_ssm_association" "db_migration_ansible_playbook" {
-  count            = var.run_playbook == "db_migration" ? 0 : 1
+  count            = "${var.run_db_migration_playbook ? 1 : 0}"
   name             = "AWS-RunAnsiblePlaybook"
   association_name = "db_migration_ansible_playbook"
 
@@ -108,11 +123,35 @@ resource "aws_ssm_association" "db_migration_ansible_playbook" {
     s3_key_prefix  = "logs"
   }
 
-  depends_on = [null_resource.migration_ansible_delay]
+  # depends_on = [null_resource.migration_ansible_delay]
+}
+
+resource "aws_ssm_association" "db_restore_ansible_playbook" {
+  count            = "${var.run_db_restore_playbook ? 1 : 0}"
+  name             = "AWS-RunAnsiblePlaybook"
+  association_name = "db_restore_ansible_playbook"
+
+  schedule_expression = "rate(30 minutes)"
+
+  targets {
+    key    = "tag:Name"
+    values = ["${upper(var.environment)}-OPENVPN-EC2"]
+  }
+
+  parameters = {
+    playbook = data.template_file.db_restore_ansible_playbook.rendered
+  }
+
+  output_location {
+    s3_bucket_name = "${aws_s3_bucket.ssm_ansible_bucket.id}"
+    s3_key_prefix  = "logs"
+  }
+
+  # depends_on = [null_resource.migration_ansible_delay]
 }
 
 resource "aws_ssm_association" "ssl_ansible_playbook" {
-  count            = var.run_playbook == "ssl" ? 0 : 1
+  count            = "${var.run_ssl_playbook ? 1 : 0}"
   name             = "AWS-RunAnsiblePlaybook"
   association_name = "ssl_ansible_playbook"
 
@@ -132,13 +171,13 @@ resource "aws_ssm_association" "ssl_ansible_playbook" {
     s3_key_prefix  = "logs"
   }
 
-  depends_on = [null_resource.ssl_ansible_delay]
+  # depends_on = [null_resource.ssl_ansible_delay]
 }
 
 resource "aws_ssm_association" "update_ansible_playbook" {
-  count            = var.run_playbook == "update" ? 0 : 1
+  count            = "${var.run_update_server_playbook ? 1 : 0}"
   name             = "AWS-RunAnsiblePlaybook"
-  association_name = "ssl_ansible_playbook"
+  association_name = "update_server_ansible_playbook"
 
   schedule_expression = "rate(30 minutes)"
 
@@ -156,5 +195,5 @@ resource "aws_ssm_association" "update_ansible_playbook" {
     s3_key_prefix  = "logs"
   }
 
-  depends_on = [null_resource.update_ansible_delay]
+  # depends_on = [null_resource.update_ansible_delay]
 }

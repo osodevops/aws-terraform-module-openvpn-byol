@@ -186,11 +186,23 @@ variable "epel_repo_url" {
   default     = "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
 }
 
-variable "run_playbook" {
-  description = "Set which playbooks should be run against the OpenVPN server"
-}
-
 variable "run_full_system_update" {
   default = false
   description = "Set True or False to run a full system update on the server"
+}
+
+variable "run_db_migration_playbook" {
+  default = false
+}
+
+variable "run_db_restore_playbook" {
+  default = false
+}
+
+variable "run_ssl_playbook" {
+  default = false
+}
+
+variable "run_update_server_playbook" {
+  default = false
 }

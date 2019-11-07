@@ -1,0 +1,71 @@
+---
+- hosts: 127.0.0.1
+  gather_facts: true
+  vars:
+    # Maria DB Repo details | Only for CentOS
+    MariaDB_repo_url: ${mariadb_repo_url}
+    MariaDB_repo_enable: ${mariadb_repo_enable}
+    MariaDB_repo_gpgcheck: ${mariadb_repo_gpgcheck}
+    MariaDB_repo_gpg_url: ${mariadb_repo_gpg_url}
+    # OpenVPN Database Details | You need RDS setup to use these!
+    openvpn_database_user: ${openvpn_database_user}
+    openvpn_database_password: ${openvpn_database_password}
+    openvpn_database_host: ${openvpn_database_port}
+    openvpn_database_port: ${openvpn_database_host}
+    openvpn_database_url: "{{ openvpn_database_host }}:{{ openvpn_database_port }}"
+    openvpn_databases:
+      - as_certs
+      - as_userprop
+      - as_config
+      - as_log
+  tasks:
+  - name: Setup MariaDB repo for CentOS
+    yum_repository:
+      name: MariaDB
+      description: MariaDB Repository
+      baseurl: "{{ MariaDB_repo_url }}"
+      enabled: "{{ MariaDB_repo_enable }}"
+      gpgcheck: "{{ MariaDB_repo_gpgcheck }}"
+      gpgkey: "{{ MariaDB_repo_gpg_url }}"
+    register: mariadb_repo
+    when: ansible_distribution == 'CentOS'
+
+  - name: Install MariaDB Client
+    yum:
+      name: "{{ item }}"
+      state: latest
+    with_items:
+      - MariaDB-client
+      - mariadb-libs
+      - MySQL-python
+    when: ansible_distribution == 'CentOS'
+
+  - name: copy .my.cnf file with credentials
+    template:
+      src: templates/root/.my.j2
+      dest: ~/.my.cnf
+      owner: root
+      mode: 0600
+    register: db_creds
+
+  - name: Database | Stop Openvpn server for to update DB credentials
+    systemd:
+      name: openvpnas
+      state: stopped
+    when: db_creds.changed
+    register: openvpn_stopped
+
+  - name: Database | Use MySQL database settings
+    template:
+      src: as.j2
+      dest: /usr/local/openvpn_as/etc/as.conf
+      mode: 0644
+      owner: root
+    when: openvpn_stopped.changed
+    register: config_updated
+
+  - name: Database | Start openvpnas server for after migration
+    systemd:
+      name: openvpnas
+      state: started
+    when: config_updated.changed
