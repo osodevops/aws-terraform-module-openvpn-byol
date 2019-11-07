@@ -17,35 +17,9 @@ resource "aws_rds_cluster_instance" "db_instance" {
   }
 }
 
-resource "aws_rds_cluster" "new_db_cluster" {
-  count                        = "${var.create_new_db ? 1 : 0}"
+resource "aws_rds_cluster" "db_cluster" {
   cluster_identifier           = var.rds_cluster_identifier
-  database_name                = var.rds_database_name
-  availability_zones           = [data.aws_availability_zones.available.names[0], data.aws_availability_zones.available.names[1], data.aws_availability_zones.available.names[2]]
-  master_username              = var.rds_master_name
-  master_password              = var.rds_master_password
-  final_snapshot_identifier    = var.rds_final_snapshot
-  backup_retention_period      = var.rds_backup_retention_period
-  preferred_backup_window      = var.rds_preferred_backup_window
-  preferred_maintenance_window = var.rds_maintenance_window
-  port                         = var.rds_port
-  db_subnet_group_name         = aws_db_subnet_group.db_subnet_group.id
-  vpc_security_group_ids       = [aws_security_group.openvpn-rds-sg.id]
-  storage_encrypted            = var.rds_storage_encrypted
-  tags = merge(
-    var.common_tags,
-    {
-      "Name" = "${upper(var.environment)}-OPENVPN-RDS-Cluster"
-    },
-  )
-}
-
-
-
-resource "aws_rds_cluster" "restore_db_cluster" {
-  count                        = "${var.restore_db ? 1 : 0}"
   snapshot_identifier          = var.snapshot_identifier
-  cluster_identifier           = var.rds_cluster_identifier
   database_name                = var.rds_database_name
   availability_zones           = [data.aws_availability_zones.available.names[0], data.aws_availability_zones.available.names[1], data.aws_availability_zones.available.names[2]]
   master_username              = var.rds_master_name
