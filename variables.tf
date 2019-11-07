@@ -189,3 +189,8 @@ variable "epel_repo_url" {
 variable "run_playbook" {
   description = "Set which playbooks should be run against the OpenVPN server"
 }
+
+variable "run_full_system_update" {
+  default = false
+  description = "Set True or False to run a full system update on the server"
+}
