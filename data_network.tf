@@ -5,3 +5,4 @@ data "aws_vpc" "openvpn" {
 data "aws_availability_zones" "available" {
 }
 
+data "aws_region" "current" {}

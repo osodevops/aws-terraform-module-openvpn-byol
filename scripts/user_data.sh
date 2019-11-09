@@ -1,5 +1,8 @@
 #!/bin/bash -x
 
+#log output from this user_data script
+exec > >(tee /var/log/user-data.log|logger -t user-data ) 2>&1
+
 # Allow the instance to associate a static IP
 yum install awscli -y
 aws ec2 associate-address --instance-id $(curl http://169.254.169.254/latest/meta-data/instance-id) --allocation-id ${eip} --allow-reassociation --region ${region}

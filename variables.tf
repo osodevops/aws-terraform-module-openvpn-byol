@@ -1,6 +1,67 @@
+variable "ami_owner_account" {}
+
+variable "asg_min_size" {
+  default = 1
+}
+
+variable "asg_max_size" {
+  default = 1
+}
+
+variable "asg_desired_capacity" {
+  default = 1
+}
+
 variable "db_instance_type" {
   type    = string
   default = "db.t2.small"
+}
+
+variable "ec2_instance_type" {
+  type        = string
+  description = "Set EC2 instance type for Openvpn server"
+  default     = "t2.small"
+}
+
+variable "environment" {
+  type = string
+}
+
+variable "iam_role_name" {
+  default = "openvpn-iam-role"
+}
+
+variable "iam_policy_name" {
+  default = "openvpn-iam-policy"
+}
+
+variable "iam_instance_profile_name" {
+  default = "openvpn-instance-profile"
+}
+
+variable "key_name" {
+  type        = string
+  description = "Set the EC2 Key name"
+}
+
+
+variable "rds_backup_retention_period" {
+  type    = string
+  default = "7"
+}
+
+variable "rds_preferred_backup_window" {
+  type    = string
+  default = "01:00-03:00"
+}
+
+variable "rds_maintenance_window" {
+  type    = string
+  default = "sun:03:00-sun:04:00"
+}
+
+variable "rds_storage_encrypted" {
+  default = true
 }
 
 variable "rds_master_name" {
@@ -35,51 +96,6 @@ variable "rds_port" {
   default = "3306"
 }
 
-variable "rds_backup_retention_period" {
-  type    = string
-  default = "7"
-}
-
-variable "rds_preferred_backup_window" {
-  type    = string
-  default = "01:00-03:00"
-}
-
-variable "rds_maintenance_window" {
-  type    = string
-  default = "sun:03:00-sun:04:00"
-}
-
-variable "rds_storage_encrypted" {
-  default = true
-}
-
-variable "iam_role_name" {
-  default = "openvpn-iam-role"
-}
-
-variable "iam_policy_name" {
-  default = "openvpn-iam-policy"
-}
-
-variable "iam_instance_profile_name" {
-  default = "openvpn-instance-profile"
-}
-
-variable "key_name" {
-  type        = string
-  description = "Set the EC2 Key name"
-}
-
-variable "ec2_image_id" {
-  description = "Set the AMI ID user for the Launch Configuration"
-}
-
-variable "ec2_instance_type" {
-  type        = string
-  description = "Set EC2 instance type for Openvpn server"
-  default     = "t2.small"
-}
 
 variable "r53_domain_name" {
   description = "Set the domain name of your OpenVPN deployment"
@@ -87,9 +103,6 @@ variable "r53_domain_name" {
 
 variable "r53_hosted_zone_id" {
   description = "Set the hosted zone id"
-}
-
-variable "environment" {
 }
 
 variable "vpc_id" {

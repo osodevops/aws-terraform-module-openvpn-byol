@@ -24,6 +24,7 @@ data "aws_iam_policy_document" "openvpn_eip" {
       "ec2:DescribeAddresses",
       "ec2:AssociateAddress",
       "ec2:AllocateAddress",
+      "kms:CreateGrant"
     ]
 
     resources = ["*"]

@@ -64,7 +64,7 @@ data "template_file" "update_ansible_playbook" {
 }
 
 resource "aws_ssm_association" "db_migration_ansible_playbook" {
-  count            = "${var.run_db_migration_playbook ? 1 : 0}"
+  count            = var.run_db_migration_playbook ? 1 : 0
   name             = "AWS-RunAnsiblePlaybook"
   association_name = "db_migration_ansible_playbook"
 
@@ -86,7 +86,7 @@ resource "aws_ssm_association" "db_migration_ansible_playbook" {
 }
 
 resource "aws_ssm_association" "db_restore_ansible_playbook" {
-  count            = "${var.run_db_restore_playbook ? 1 : 0}"
+  count            = var.run_db_restore_playbook ? 1 : 0
   name             = "AWS-RunAnsiblePlaybook"
   association_name = "db_restore_ansible_playbook"
 
@@ -108,7 +108,7 @@ resource "aws_ssm_association" "db_restore_ansible_playbook" {
 }
 
 resource "aws_ssm_association" "ssl_ansible_playbook" {
-  count            = "${var.run_ssl_playbook ? 1 : 0}"
+  count            = var.run_ssl_playbook ? 1 : 0
   name             = "AWS-RunAnsiblePlaybook"
   association_name = "ssl_ansible_playbook"
 
@@ -130,7 +130,7 @@ resource "aws_ssm_association" "ssl_ansible_playbook" {
 }
 
 resource "aws_ssm_association" "update_ansible_playbook" {
-  count            = "${var.run_update_server_playbook ? 1 : 0}"
+  count            = var.run_update_server_playbook ? 1 : 0
   name             = "AWS-RunAnsiblePlaybook"
   association_name = "update_server_ansible_playbook"
 
