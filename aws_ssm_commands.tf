@@ -71,22 +71,26 @@ resource "aws_ssm_document" "db_migration_ansible_playbook" {
 }
 
 resource "aws_ssm_document" "db_restore_ansible_playbook" {
-  name          = "openvpn_db_restore_ansible_playbook"
-  document_type = "Command"
+  name            = "openvpn_db_restore_ansible_playbook"
+  document_format = "YAML"
+  document_type   = "Command"
+
 
   content = "${data.template_file.db_restore_ansible_playbook.rendered}"
 }
 
 resource "aws_ssm_document" "ssl_ansible_playbook" {
-  name          = "openvpn_ssl_ansible_playbook"
-  document_type = "Command"
+  name            = "openvpn_ssl_ansible_playbook"
+  document_format = "YAML"
+  document_type   = "Command"
 
   content = "${data.template_file.ssl_ansible_playbook.rendered}"
 }
 
 resource "aws_ssm_document" "update_ansible_playbook" {
-  name          = "openvpn_update_ansible_playbook"
-  document_type = "Command"
+  name            = "openvpn_update_ansible_playbook"
+  document_format = "YAML"
+  document_type   = "Command"
 
   content = "${data.template_file.update_ansible_playbook.rendered}"
 }
