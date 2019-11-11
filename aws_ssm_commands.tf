@@ -1,7 +1,7 @@
 data "aws_instances" "nodes" {
   depends_on = [aws_autoscaling_group.openvpn]
   instance_tags = {
-    Name = "${upper(var.environment)}-OPENVPN-EC2"
+    Name = "${upper(var.environment)}-OPENVPN-EC2-ASG"
   }
   instance_state_names = ["running"]
 }
