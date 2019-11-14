@@ -25,10 +25,10 @@ then
     echo "Downloading certificates directly from S3"
     mkdir -p /etc/letsencrypt/live/${domain_name}/
     chmod 0700 -R /etc/letsencrypt/live/${domain_name}/
-    aws s3 cp s3://${s3_bucket}/certs/${domain_name}/cert.pem /etc/letsencrypt/live/${domain_name}/cert.pem
-    aws s3 cp s3://${s3_bucket}/certs/${domain_name}/chain.pem /etc/letsencrypt/live/${domain_name}/chain.pem
-    aws s3 cp s3://${s3_bucket}/certs/${domain_name}/fullchain.pem /etc/letsencrypt/live/${domain_name}/fullchain.pem
-    aws s3 cp s3://${s3_bucket}/certs/${domain_name}/privkey.pem /etc/letsencrypt/live/${domain_name}/privkey.pem
+    aws s3 cp s3://${s3_bucket}/cert/${domain_name}/cert.pem /etc/letsencrypt/live/${domain_name}/cert.pem
+    aws s3 cp s3://${s3_bucket}/cert/${domain_name}/chain.pem /etc/letsencrypt/live/${domain_name}/chain.pem
+    aws s3 cp s3://${s3_bucket}/cert/${domain_name}/fullchain.pem /etc/letsencrypt/live/${domain_name}/fullchain.pem
+    aws s3 cp s3://${s3_bucket}/cert/${domain_name}/privkey.pem /etc/letsencrypt/live/${domain_name}/privkey.pem
 fi
 
 # Get playbook from S3
