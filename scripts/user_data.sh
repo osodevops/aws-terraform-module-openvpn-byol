@@ -50,7 +50,7 @@ echo "Updating the OpenVPN configuration."
 # Correct the name of the server so its the same as the DNS domain records
 /usr/local/openvpn_as/scripts/sacli --key "host.name" --value "${domain_name}" ConfigPut
 /usr/local/openvpn_as/scripts/sacli start
-/usr/local/openvpnas/scripts/sacli --key "cs.web_server_name" --value "${domain_name}" ConfigPut
+/usr/local/openvpn_as/scripts/sacli --key "cs.web_server_name" --value "${domain_name}" ConfigPut
 /usr/local/openvpn_as/scripts/sacli start
 # Updating access to private networks
 /usr/local/openvpn_as/scripts/sacli --key "vpn.server.routing.private_network.0" --value "${private_network_access_1}" ConfigPut
