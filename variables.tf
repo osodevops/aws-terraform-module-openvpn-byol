@@ -223,3 +223,15 @@ variable "run_update_server_playbook" {
 variable "snapshot_identifier" {
   description = "Set the snapshot you want to restore from"
 }
+
+variable "ssm_parameter_name" {
+  description = "Set the SSM parameter for the OpenVPN user"
+}
+
+variable "private_network_access_1" {
+  description = "Set the CIDR range of private network the VPN server needs to access"
+}
+
+variable "private_network_access_2" {
+  description = "Set the CIDR range of private network the VPN server needs to access"
+}
