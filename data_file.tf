@@ -7,5 +7,6 @@ data "template_file" "user_data" {
     region         = var.aws_region
     domain_name    = var.r53_domain_name
     hosted_zone_id = var.r53_hosted_zone_id
+    s3_bucket      = aws_s3_bucket.ssm_ansible_bucket.id
   }
 }

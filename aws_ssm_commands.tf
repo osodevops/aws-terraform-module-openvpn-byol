@@ -52,6 +52,7 @@ data "template_file" "ssl_ansible_playbook" {
     epel_repofile_path    = var.epel_repofile_path
     epel_repo_gpg_key_url = var.epel_repo_gpg_key_url
     epel_repo_url         = var.epel_repo_url
+    s3_bucket             = aws_s3_bucket.ssm_ansible_bucket.id
   }
 }
 

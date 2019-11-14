@@ -10,6 +10,7 @@
     # General settings | VPN Domain
     openvpn_server_domain: ${openvpn_dns_name}
     hostname: ${ec2_hostname}
+    s3_bucket: ${s3_bucket}
   tasks:
     - name: Cerbot | Check if EPEL repo is already configured.
       stat: path={{ epel_repofile_path }}
@@ -50,13 +51,21 @@
       when: certificate_request.changed
 
     - name: Cerbot | Upload ca_bundle
-      command: /usr/local/openvpn_as/scripts/confdba -mk cs.ca_bundle -v "`cat /etc/letsencrypt/live/{{ openvpn_server_domain }}/fullchain.pem`"
+      command: /usr/local/openvpn_as/scripts/confdba -mk cs.ca_bundle -v "/etc/letsencrypt/live/{{ openvpn_server_domain }}/fullchain.pem"
 
     - name: Cerbot | Upload priv_key
-      command: /usr/local/openvpn_as/scripts/confdba -mk cs.priv_key -v "`cat /etc/letsencrypt/live/{{ openvpn_server_domain }}/privkey.pem`" > /dev/null
+      command: /usr/local/openvpn_as/scripts/confdba -mk cs.priv_key -v "/etc/letsencrypt/live/{{ openvpn_server_domain }}/privkey.pem"
 
     - name: Certbot | Upload certificate
-      command: /usr/local/openvpn_as/scripts/confdba -mk cs.cert -v "`cat /etc/letsencrypt/live/{{ openvpn_server_domain }}/cert.pem`"
+      command: /usr/local/openvpn_as/scripts/confdba -mk cs.cert -v "/etc/letsencrypt/live/{{ openvpn_server_domain }}/cert.pem"
+
+    - name: Certbot | Upload certs to S3
+      command: aws s3 cp {{ item }} s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/{{ item }}
+      with_items:
+        - cert.pem
+        - chain.pem
+        - fullchain.pem
+        - privkey.pem
 
     - name: Certbot | Restart VPN service
       systemd:
