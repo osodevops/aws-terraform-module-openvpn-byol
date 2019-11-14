@@ -45,16 +45,16 @@ aws s3 cp s3://${s3_bucket}/ansible/openvpn_db_restore_ansible_playbook.yaml /op
 echo "Running Ansible playbook to restore RDS connection"
 ansible-playbook -v /opt/openvpn_db_restore_ansible_playbook.yaml
 
-# Restart OpenVPN service
-echo "Restarting OpenVPN service"
-service openvpnas restart
+# Sleep to allow OpenVPN service to start back up
+echo "Sleeping for 10 seconds"
+sleep 10
 
 # Correct the OpenVPN configuration.
 echo "Updating the OpenVPN configuration."
-
 # Correct the name of the server so its the same as the DNS domain records
 /usr/local/openvpn_as/scripts/sacli --key "host.name" --value "${domain_name}" ConfigPut
 /usr/local/openvpn_as/scripts/sacli start
+
 /usr/local/openvpn_as/scripts/sacli --key "cs.web_server_name" --value "${domain_name}" ConfigPut
 /usr/local/openvpn_as/scripts/sacli start
 
