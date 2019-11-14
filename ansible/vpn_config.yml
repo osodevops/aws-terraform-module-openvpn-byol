@@ -1,0 +1,54 @@
+---
+- hosts: 127.0.0.1
+  gather_facts: true
+  vars:
+  # OpenVPN Configuration Settings
+  openvpnas_base_path: "/usr/local/openvpn_as"
+  openvpnas_etc_path: "{{openvpnas_base_path}}/etc"
+  openvpnas_profile: "Default"
+  # General settings | MFA
+  openvpn_enable_mfa: true
+  # OpenVPN Network Settings
+  openvpn_network_config:
+    vpn.server.routing.private_access: "nat"
+    vpn.server.routing.private_network.0: ""
+    vpn.client.routing.reroute_gw: "false"
+    vpn.server.routing.gateway_access: "false"
+    vpn.client.routing.reroute_dns: ""
+    vpn.server.dhcp_option.dns.0: ""
+  openvpn_ldap_config:
+    auth.module.type: "ldap"
+    auth.ldap.0.server.0.host: ""
+    auth.ldap.0.bind_dn: ""
+    auth.ldap.0.bind_pw: ""
+    auth.ldap.0.name: "My LDAP servers"
+    auth.ldap.0.users_base_dn: ""
+    auth.ldap.0.uname_attr: ""
+  tasks:
+  - name: Config | Check that Openvpn is running
+    systemd:
+      name: openvpnas
+      state: started
+
+  - name: Config | Apply network settings
+    command: /usr/local/openvpn_as/scripts/sacli --key "{{ item.key }}" --value "{{ item.value }}" ConfigPut
+    with_dict: "{{ openvpn_network_config }}"
+    when: ( use_network_settings|bool )
+    notify: Update openvpn
+
+  - name: Config | Enable MFA
+    command: /usr/local/openvpn_as/scripts/sacli --key "vpn.server.google_auth.enable" --value "true" ConfigPut
+    when: ( openvpn_enable_mfa|bool )
+    notify: Update openvpn
+
+  - name: Config | Apply LDAP settings
+    command: /usr/local/openvpn_as/scripts/sacli --key "{{ item.key }}" --value "{{ item.value }}" ConfigPut
+    with_dict: "{{ openvpn_ldap_config }}"
+    when: ( use_ldap_authentication|bool )
+    notify: Update openvpn
+    register: openvpn_apply_ldap
+
+  - name: Config | Activate LDAP
+    command: /usr/local/openvpn_as/script/sacli --key "auth.module.type" --value "ldap" ConfigPut
+    when: openvpn_apply_ldap.changed
+    notify: Update openvpn

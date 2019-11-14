@@ -1,0 +1,73 @@
+---
+- hosts: 127.0.0.1
+  gather_facts: true
+  vars:
+    # EPEL Repo details | Only for CentOS
+    epel_repo_url: ${epel_repo_url}
+    epel_repo_gpg_key_url: ${epel_repo_gpg_key_url}
+    epel_repofile_path: ${epel_repofile_path}
+    ssl_admin_email: ${ssl_admin_email}
+    # General settings | VPN Domain
+    openvpn_server_domain: ${openvpn_dns_name}
+    hostname: ${ec2_hostname}
+    s3_bucket: ${s3_bucket}
+  tasks:
+    - name: Cerbot | Check if EPEL repo is already configured.
+      stat: path={{ epel_repofile_path }}
+      register: epel_repofile_result
+
+    - name: Cerbot | Install EPEL repo.
+      yum:
+        name: "{{ epel_repo_url }}"
+        state: present
+      register: result
+      when: not epel_repofile_result.stat.exists
+
+    - name: Cerbot | Import EPEL GPG key.
+      rpm_key:
+        key: "{{ epel_repo_gpg_key_url }}"
+        state: present
+      when: not epel_repofile_result.stat.exists
+
+    - name: Cerbot | Install Cerbot
+      yum:
+        name: certbot
+        state: present
+      register: certbot_installed
+
+    - name: Certbot | Stop VPN service
+      systemd:
+        name: openvpnas
+        state: stopped
+
+    - name: Cerbot | Request certificate
+      command: certbot certonly --standalone -d {{ openvpn_server_domain }} --email {{ ssl_admin_email }} --agree-tos
+      register: certificate_request
+
+    - name: Certbot | Start VPN service
+      systemd:
+        name: openvpnas
+        state: restarted
+      when: certificate_request.changed
+
+    - name: Cerbot | Upload ca_bundle
+      command: /usr/local/openvpn_as/scripts/confdba -mk cs.ca_bundle -v "/etc/letsencrypt/live/{{ openvpn_server_domain }}/fullchain.pem"
+
+    - name: Cerbot | Upload priv_key
+      command: /usr/local/openvpn_as/scripts/confdba -mk cs.priv_key -v "/etc/letsencrypt/live/{{ openvpn_server_domain }}/privkey.pem"
+
+    - name: Certbot | Upload certificate
+      command: /usr/local/openvpn_as/scripts/confdba -mk cs.cert -v "/etc/letsencrypt/live/{{ openvpn_server_domain }}/cert.pem"
+
+    - name: Certbot | Upload certs to S3
+      command: aws s3 cp {{ item }} s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/{{ item }}
+      with_items:
+        - cert.pem
+        - chain.pem
+        - fullchain.pem
+        - privkey.pem
+
+    - name: Certbot | Restart VPN service
+      systemd:
+        name: openvpnas
+        state: restarted

@@ -1,0 +1,29 @@
+---
+- hosts: 127.0.0.1
+  gather_facts: true
+  vars:
+    full_system_update: ${full_system_update}
+  tasks:
+    - name: update the system
+      yum:
+        name: "*"
+        state: latest
+
+    - name: restart system to reboot to newest kernel
+      shell: "sleep 5 && reboot"
+      async: 1
+      poll: 0
+      when: ( full_system_update|bool )
+
+    - name: wait for 10 seconds
+      pause:
+      seconds: 10
+      when: ( full_system_update|bool )
+
+    - name: wait for the system to reboot
+      wait_for_connection:
+      connect_timeout: 20
+      sleep: 5
+      delay: 5
+      timeout: 60
+      when: ( full_system_update|bool )
