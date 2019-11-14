@@ -15,6 +15,7 @@ setenforce 0
 aws route53 change-resource-record-sets --hosted-zone-id ${hosted_zone_id} --change-batch '{ "Comment": "Update record to reflect new IP address of OpenVPN AS", "Changes": [ { "Action": "UPSERT", "ResourceRecordSet": { "Name": "'${domain_name}'", "Type": "A", "TTL": 120, "ResourceRecords": [ { "Value": "'${eip_ip4}'" } ] } } ] }'
 
 # Install missing pyOpenSSL package
+yum install wget -y
 wget  -P /opt/ https://cbs.centos.org/kojifiles/packages/pyOpenSSL/0.15.1/1.el7/noarch/pyOpenSSL-0.15.1-1.el7.noarch.rpm
 yum install /opt/pyOpenSSL-0.15.1-1.el7.noarch.rpm -y
 
