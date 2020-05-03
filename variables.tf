@@ -235,3 +235,27 @@ variable "private_network_access_1" {
 variable "private_network_access_2" {
   description = "Set the CIDR range of private network the VPN server needs to access"
 }
+
+variable "deletion_protection" {
+  type        = bool
+  default     = true
+  description = "If the DB instance should have deletion protection enabled. The database can't be deleted when this value is set to true. The default is false."
+}
+
+variable "multi_az" {
+  type        = bool
+  default     = false
+  description = "Specifies if the RDS instance is multi-AZ"
+}
+
+variable "publicly_accessible" {
+  type        = bool
+  default     = false
+  description = "Bool to control if instance is publicly accessible. Default is false."
+}
+
+variable "apply_immediately" {
+  type        = bool
+  default     = false
+  description = "Specifies whether any database modifications are applied immediately, or during the next maintenance window. Default is false."
+}
