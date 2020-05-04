@@ -4,9 +4,10 @@
   vars:
     full_system_update: ${full_system_update}
   tasks:
-    - name: update the system
+    - name: update the system security
       yum:
         name: "*"
+        security: yes
         state: latest
 
     - name: restart system to reboot to newest kernel

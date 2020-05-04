@@ -28,11 +28,13 @@
         key: "{{ epel_repo_gpg_key_url }}"
         state: present
       when: not epel_repofile_result.stat.exists
+      register: epel_repo
 
     - name: Cerbot | Install Cerbot
       yum:
         name: certbot
         state: present
+      when: epel_repo.changed
       register: certbot_installed
 
     - name: Certbot | Stop VPN service
@@ -40,9 +42,37 @@
         name: openvpnas
         state: stopped
 
+    - name: Create certificate path
+      file:
+        path: /etc/letsencrypt/live/{{ openvpn_server_domain }}/
+        state: directory
+        mode: '0755'
+        recurse: yes
+
+    - name: Certbot | Check if the certs exists in S3
+      command: aws s3 ls s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/cert.pem | wc -l
+      register: fileCount
+
+    - name: Certbot | Download S3 certificate files
+      command: aws s3 cp s3://{{ s3_bucket }}/cert/{{ openvpn_server_domain }}/cert.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/cert.pem
+      when: fileCount > 1
+
+    - name: Certbot | Download S3 certificate files
+      command: aws s3 cp s3://{{ s3_bucket }}/cert/{{ openvpn_server_domain }}/chain.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/chain.pem
+      when: fileCount > 1
+
+    - name: Certbot | Download S3 certificate files
+      command: aws s3 cp s3://{{ s3_bucket }}/cert/{{ openvpn_server_domain }}/fullchain.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/fullchain.pem
+      when: fileCount > 1
+
+    - name: Certbot | Download S3 certificate files
+      command: aws s3 cp s3://{{ s3_bucket }}/cert/{{ openvpn_server_domain }}/privkey.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/privkey.pem
+      when: fileCount > 1
+      
     - name: Cerbot | Request certificate
       command: certbot certonly --standalone -d {{ openvpn_server_domain }} --email {{ ssl_admin_email }} --agree-tos
       register: certificate_request
+      when: fileCount|length == 0
 
     - name: Certbot | Start VPN service
       systemd:
@@ -52,12 +82,15 @@
 
     - name: Cerbot | Upload ca_bundle
       command: /usr/local/openvpn_as/scripts/confdba -mk cs.ca_bundle -v "/etc/letsencrypt/live/{{ openvpn_server_domain }}/fullchain.pem"
+      when: certificate_request.changed
 
     - name: Cerbot | Upload priv_key
       command: /usr/local/openvpn_as/scripts/confdba -mk cs.priv_key -v "/etc/letsencrypt/live/{{ openvpn_server_domain }}/privkey.pem"
+      when: certificate_request.changed
 
     - name: Certbot | Upload certificate
       command: /usr/local/openvpn_as/scripts/confdba -mk cs.cert -v "/etc/letsencrypt/live/{{ openvpn_server_domain }}/cert.pem"
+      when: certificate_request.changed
 
     - name: Certbot | Upload certs to S3
       command: aws s3 cp {{ item }} s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/{{ item }}
@@ -66,6 +99,7 @@
         - chain.pem
         - fullchain.pem
         - privkey.pem
+      when: certificate_request.changed
 
     - name: Certbot | Restart VPN service
       systemd:

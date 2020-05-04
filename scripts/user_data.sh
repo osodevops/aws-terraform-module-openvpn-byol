@@ -25,25 +25,30 @@ yum install wget -y
 wget -P /opt/ https://cbs.centos.org/kojifiles/packages/pyOpenSSL/0.15.1/1.el7/noarch/pyOpenSSL-0.15.1-1.el7.noarch.rpm
 yum install /opt/pyOpenSSL-0.15.1-1.el7.noarch.rpm -y
 
-# Check if the SSL certificates need to be pulled down from S3.
-if [ ! -d "/etc/letsencrypt/live/${domain_name}" ] 
-then
-    echo "Letsencrypt /etc/letsencrypt/live/${domain_name} is not installed!"
-    echo "Downloading certificates directly from S3"
-    mkdir -p /etc/letsencrypt/live/${domain_name}/
-    chmod 0700 -R /etc/letsencrypt/live/${domain_name}/
-    aws s3 cp s3://${s3_bucket}/cert/${domain_name}/cert.pem /etc/letsencrypt/live/${domain_name}/cert.pem
-    aws s3 cp s3://${s3_bucket}/cert/${domain_name}/chain.pem /etc/letsencrypt/live/${domain_name}/chain.pem
-    aws s3 cp s3://${s3_bucket}/cert/${domain_name}/fullchain.pem /etc/letsencrypt/live/${domain_name}/fullchain.pem
-    aws s3 cp s3://${s3_bucket}/cert/${domain_name}/privkey.pem /etc/letsencrypt/live/${domain_name}/privkey.pem
-    echo "Certificates downloaded from S3"
-fi
 
-# Get playbook from S3 and connect VPN server to RDS.
 echo "Pulling down Ansible playbook from S3"
-aws s3 cp s3://${s3_bucket}/ansible/openvpn_db_restore_ansible_playbook.yaml /opt/openvpn_db_restore_ansible_playbook.yaml
+aws s3 cp s3://${s3_bucket}/ansible/openvpn_ssl_playbook.yaml /opt/openvpn_ssl_playbook.yaml
+aws s3 cp s3://${s3_bucket}/ansible/openvpn_db_playbook.yaml /opt/openvpn_db_playbook.yaml
+
+# # Check if the SSL certificates need to be pulled down from S3.
+echo "Running Ansible playbook to create/restore SSL certificates"
+ansible-playbook -v /opt/openvpn_ssl_playbook.yaml
+
+# if [ ! -d "/etc/letsencrypt/live/${domain_name}" ] 
+# then
+#     echo "Letsencrypt /etc/letsencrypt/live/${domain_name} is not installed!"
+#     echo "Downloading certificates directly from S3"
+#     mkdir -p /etc/letsencrypt/live/${domain_name}/
+#     chmod 0700 -R /etc/letsencrypt/live/${domain_name}/
+#     aws s3 cp s3://${s3_bucket}/cert/${domain_name}/cert.pem /etc/letsencrypt/live/${domain_name}/cert.pem
+#     aws s3 cp s3://${s3_bucket}/cert/${domain_name}/chain.pem /etc/letsencrypt/live/${domain_name}/chain.pem
+#     aws s3 cp s3://${s3_bucket}/cert/${domain_name}/fullchain.pem /etc/letsencrypt/live/${domain_name}/fullchain.pem
+#     aws s3 cp s3://${s3_bucket}/cert/${domain_name}/privkey.pem /etc/letsencrypt/live/${domain_name}/privkey.pem
+#     echo "Certificates downloaded from S3"
+# fi
+
 echo "Running Ansible playbook to restore RDS connection"
-ansible-playbook -v /opt/openvpn_db_restore_ansible_playbook.yaml
+ansible-playbook -v /opt/openvpn_db_playbook.yaml
 
 # Sleep to allow OpenVPN service to start back up
 echo "Sleeping for 10 seconds"
