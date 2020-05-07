@@ -32,8 +32,6 @@ resource "aws_rds_cluster" "db_cluster" {
   db_subnet_group_name         = aws_db_subnet_group.db_subnet_group.id
   vpc_security_group_ids       = [aws_security_group.openvpn-rds-sg.id]
   storage_encrypted            = var.rds_storage_encrypted
-  multi_az                     = var.multi_az
-  # publicly_accessible          = var.publicly_accessible
   apply_immediately            = var.apply_immediately
   deletion_protection          = var.deletion_protection
   tags = merge(
