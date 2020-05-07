@@ -4,7 +4,7 @@ data "aws_ami" "openvpn" {
   filter {
     name = "name"
 
-    values = ["ENC-OPENVPN-*"]
+    values = [var.aws_ami_filter]
   }
 
   owners = [var.ami_owner_account]

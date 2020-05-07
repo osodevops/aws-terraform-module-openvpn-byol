@@ -259,3 +259,9 @@ variable "apply_immediately" {
   default     = false
   description = "Specifies whether any database modifications are applied immediately, or during the next maintenance window. Default is false."
 }
+
+variable "aws_ami_filter" {
+  type        = string
+  default     = "ENC-OPENVPN-*"
+  description = "Set the filter to search AMI's for"
+}

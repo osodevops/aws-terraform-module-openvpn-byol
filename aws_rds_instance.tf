@@ -13,7 +13,7 @@ resource "aws_rds_cluster_instance" "db_instance" {
   )
 
   lifecycle {
-    ignore_changes = ["cluster_identifier"]
+    ignore_changes = [cluster_identifier]
   }
 }
 
@@ -33,7 +33,7 @@ resource "aws_rds_cluster" "db_cluster" {
   vpc_security_group_ids       = [aws_security_group.openvpn-rds-sg.id]
   storage_encrypted            = var.rds_storage_encrypted
   multi_az                     = var.multi_az
-  publicly_accessible          = var.publicly_accessible
+  # publicly_accessible          = var.publicly_accessible
   apply_immediately            = var.apply_immediately
   deletion_protection          = var.deletion_protection
   tags = merge(
