@@ -29,7 +29,7 @@ resource "aws_ssm_association" "db_ansible_playbook" {
   }
 
   output_location {
-    s3_bucket_name = "${aws_s3_bucket.ssm_ansible_bucket.id}"
+    s3_bucket_name = aws_s3_bucket.ssm_ansible_bucket.id
     s3_key_prefix  = "logs"
   }
 }
@@ -51,7 +51,7 @@ resource "aws_ssm_association" "ssl_ansible_playbook" {
   }
 
   output_location {
-    s3_bucket_name = "${aws_s3_bucket.ssm_ansible_bucket.id}"
+    s3_bucket_name = aws_s3_bucket.ssm_ansible_bucket.id
     s3_key_prefix  = "logs"
   }
 }
@@ -73,7 +73,7 @@ resource "aws_ssm_association" "update_ansible_playbook" {
   }
 
   output_location {
-    s3_bucket_name = "${aws_s3_bucket.ssm_ansible_bucket.id}"
+    s3_bucket_name = aws_s3_bucket.ssm_ansible_bucket.id
     s3_key_prefix  = "logs"
   }
 }

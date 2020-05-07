@@ -25,7 +25,6 @@ yum install wget -y
 wget -P /opt/ https://cbs.centos.org/kojifiles/packages/pyOpenSSL/0.15.1/1.el7/noarch/pyOpenSSL-0.15.1-1.el7.noarch.rpm
 yum install /opt/pyOpenSSL-0.15.1-1.el7.noarch.rpm -y
 
-
 echo "Pulling down Ansible playbook from S3"
 aws s3 cp s3://${s3_bucket}/ansible/openvpn_ssl_playbook.yaml /opt/openvpn_ssl_playbook.yaml
 aws s3 cp s3://${s3_bucket}/ansible/openvpn_db_playbook.yaml /opt/openvpn_db_playbook.yaml

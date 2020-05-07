@@ -7,5 +7,5 @@ data "aws_ami" "openvpn" {
     values = ["ENC-OPENVPN-*"]
   }
 
-  owners = ["${var.ami_owner_account}"]
+  owners = [var.ami_owner_account]
 }
