@@ -21,7 +21,6 @@ resource "aws_rds_cluster" "db_cluster" {
   cluster_identifier           = var.rds_cluster_identifier
   snapshot_identifier          = var.snapshot_identifier
   database_name                = var.rds_database_name
-  availability_zones           = [data.aws_availability_zones.available.names[0], data.aws_availability_zones.available.names[1], data.aws_availability_zones.available.names[2]]
   master_username              = var.rds_master_name
   master_password              = var.rds_master_password
   final_snapshot_identifier    = var.rds_final_snapshot
