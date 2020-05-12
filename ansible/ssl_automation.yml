@@ -53,26 +53,29 @@
       shell: aws s3 ls s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/cert.pem | wc -l
       register: fileCount
 
+    - set_fact:
+        s3fileCount: "{{ fileCount.stdout_lines|length }}"
+
     - name: Certbot | Download S3 certificate files
       command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/cert.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/cert.pem
-      when: fileCount|length > 1
+      when: s3fileCount|length > 1
 
     - name: Certbot | Download S3 certificate files
       command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/chain.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/chain.pem
-      when: fileCount|length > 1
+      when: s3fileCount|length > 1
 
     - name: Certbot | Download S3 certificate files
       command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/fullchain.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/fullchain.pem
-      when: fileCount|length > 1
+      when: s3fileCount|length > 1
 
     - name: Certbot | Download S3 certificate files
       command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/privkey.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/privkey.pem
-      when: fileCount|length > 1
+      when: s3fileCount|length > 1
       
     - name: Cerbot | Request certificate
       command: certbot certonly --standalone -d {{ openvpn_server_domain }} --email {{ ssl_admin_email }} --agree-tos
       register: certificate_request
-      when: fileCount|length == 0
+      when: s3fileCount|length == 0
 
     - name: Certbot | Start VPN service
       systemd:
