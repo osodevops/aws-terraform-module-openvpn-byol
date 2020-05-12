@@ -50,24 +50,24 @@
         recurse: yes
 
     - name: Certbot | Check if the certs exists in S3
-      command: aws s3 ls s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/cert.pem | wc -l
+      shell: aws s3 ls s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/cert.pem | wc -l
       register: fileCount
 
     - name: Certbot | Download S3 certificate files
-      command: aws s3 cp s3://{{ s3_bucket }}/cert/{{ openvpn_server_domain }}/cert.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/cert.pem
-      when: fileCount > 1
+      command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/cert.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/cert.pem
+      when: fileCount|length > 1
 
     - name: Certbot | Download S3 certificate files
-      command: aws s3 cp s3://{{ s3_bucket }}/cert/{{ openvpn_server_domain }}/chain.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/chain.pem
-      when: fileCount > 1
+      command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/chain.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/chain.pem
+      when: fileCount|length > 1
 
     - name: Certbot | Download S3 certificate files
-      command: aws s3 cp s3://{{ s3_bucket }}/cert/{{ openvpn_server_domain }}/fullchain.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/fullchain.pem
-      when: fileCount > 1
+      command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/fullchain.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/fullchain.pem
+      when: fileCount|length > 1
 
     - name: Certbot | Download S3 certificate files
-      command: aws s3 cp s3://{{ s3_bucket }}/cert/{{ openvpn_server_domain }}/privkey.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/privkey.pem
-      when: fileCount > 1
+      command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/privkey.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/privkey.pem
+      when: fileCount|length > 1
       
     - name: Cerbot | Request certificate
       command: certbot certonly --standalone -d {{ openvpn_server_domain }} --email {{ ssl_admin_email }} --agree-tos
