@@ -80,10 +80,10 @@
       when: certificate_request.changed
 
     - name: Rename certificate directory
-      command: mv vpn-* vpn-test.eks.33n.co.uk
+      command: mv {{ openvpn_server_domain }}-* {{ openvpn_server_domain }}
       args:
        chdir: /etc/letsencrypt/live
-       creates: /etc/letsencrypt/live/vpn-test.eks.33n.co.uk
+       creates: /etc/letsencrypt/live/{{ openvpn_server_domain }}
       register: certificate_dir
 
     - name: Cerbot | Upload ca_bundle
