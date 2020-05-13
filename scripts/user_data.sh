@@ -26,28 +26,15 @@ wget -P /opt/ https://cbs.centos.org/kojifiles/packages/pyOpenSSL/0.15.1/1.el7/n
 yum install /opt/pyOpenSSL-0.15.1-1.el7.noarch.rpm -y
 
 echo "Pulling down Ansible playbook from S3"
-aws s3 cp s3://${s3_bucket}/ansible/openvpn_ssl_playbook.yaml /opt/openvpn_ssl_playbook.yaml
-aws s3 cp s3://${s3_bucket}/ansible/openvpn_db_playbook.yaml /opt/openvpn_db_playbook.yaml
+aws s3 cp s3://${s3_bucket}/ansible/openvpn_ssl_ansible_playbook.yaml /opt/openvpn_ssl_ansible_playbook.yaml
+aws s3 cp s3://${s3_bucket}/ansible/openvpn_db_ansible_playbook.yaml /opt/openvpn_db_ansible_playbook.yaml
 
 # # Check if the SSL certificates need to be pulled down from S3.
 echo "Running Ansible playbook to create/restore SSL certificates"
-ansible-playbook -v /opt/openvpn_ssl_playbook.yaml
-
-# if [ ! -d "/etc/letsencrypt/live/${domain_name}" ] 
-# then
-#     echo "Letsencrypt /etc/letsencrypt/live/${domain_name} is not installed!"
-#     echo "Downloading certificates directly from S3"
-#     mkdir -p /etc/letsencrypt/live/${domain_name}/
-#     chmod 0700 -R /etc/letsencrypt/live/${domain_name}/
-#     aws s3 cp s3://${s3_bucket}/cert/${domain_name}/cert.pem /etc/letsencrypt/live/${domain_name}/cert.pem
-#     aws s3 cp s3://${s3_bucket}/cert/${domain_name}/chain.pem /etc/letsencrypt/live/${domain_name}/chain.pem
-#     aws s3 cp s3://${s3_bucket}/cert/${domain_name}/fullchain.pem /etc/letsencrypt/live/${domain_name}/fullchain.pem
-#     aws s3 cp s3://${s3_bucket}/cert/${domain_name}/privkey.pem /etc/letsencrypt/live/${domain_name}/privkey.pem
-#     echo "Certificates downloaded from S3"
-# fi
+ansible-playbook -v /opt/openvpn_ssl_ansible_playbook.yaml
 
 echo "Running Ansible playbook to restore RDS connection"
-ansible-playbook -v /opt/openvpn_db_playbook.yaml
+ansible-playbook -v /opt/openvpn_db_ansible_playbook.yaml
 
 # Sleep to allow OpenVPN service to start back up
 echo "Sleeping for 10 seconds"
@@ -58,7 +45,6 @@ echo "Updating the OpenVPN configuration."
 # Correct the name of the server so its the same as the DNS domain records
 /usr/local/openvpn_as/scripts/sacli --key "host.name" --value "${domain_name}" ConfigPut
 /usr/local/openvpn_as/scripts/sacli start
-
 /usr/local/openvpn_as/scripts/sacli --key "cs.web_server_name" --value "${domain_name}" ConfigPut
 /usr/local/openvpn_as/scripts/sacli start
 
@@ -68,8 +54,8 @@ echo "Updating the OpenVPN configuration."
 /usr/local/openvpn_as/scripts/sacli --key "vpn.server.routing.private_network.1" --value "${private_network_access_2}" ConfigPut
 /usr/local/openvpn_as/scripts/sacli start
 
-# Turn off tunneling VPN traffic
-/usr/local/openvpn_as/scripts/sacli --key "vpn.client.routing.reroute_gw" --value "false" ConfigPut
+# Turn on/off tunneling VPN traffic
+/usr/local/openvpn_as/scripts/sacli --key "vpn.client.routing.reroute_gw" --value "${tunnel_setting}" ConfigPut
 /usr/local/openvpn_as/scripts/sacli start
 
 # Restart OpenVPN

@@ -265,3 +265,9 @@ variable "aws_ami_filter" {
   default     = "ENC-OPENVPN-*"
   description = "Set the filter to search AMI's for"
 }
+
+variable "vpn_tunnel_setting" {
+  type        = string
+  default     = false
+  description = "Set the VPN tunneling mode to be ON or OFF"
+}

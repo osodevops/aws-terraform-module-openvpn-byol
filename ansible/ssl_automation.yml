@@ -14,27 +14,23 @@
   tasks:
     - name: Cerbot | Check if EPEL repo is already configured.
       stat: path={{ epel_repofile_path }}
-      # register: epel_repofile_result
 
     - name: Cerbot | Install EPEL repo.
       yum:
         name: "{{ epel_repo_url }}"
         state: present
-      # when: not epel_repofile_result.stat.exists
 
     - name: Cerbot | Import EPEL GPG key.
       rpm_key:
         key: "{{ epel_repo_gpg_key_url }}"
         state: present
-      # when: not epel_repofile_result.stat.exists
-      # register: epel_repo
+      register: epel_repo
 
     - name: Cerbot | Install Cerbot
       yum:
         name: certbot
         state: present
-      # when: epel_repo.changed
-      # register: certbot_installed
+      when: epel_repo.changed
 
     - name: Certbot | Stop VPN service
       systemd:
@@ -42,7 +38,7 @@
         state: stopped
 
     - name: Certbot | Check if the certs exists in S3
-      shell: aws s3 ls s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/cert.pem | wc -l
+      shell: aws s3 ls s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/ | wc -l
       register: fileCount
 
     - set_fact:
@@ -103,7 +99,7 @@
       when: certificate_dir.changed
 
     - name: Certbot | Upload certs to S3
-      shell: "cd /etc/letsencrypt/live/{{ openvpn_server_domain }}-* && aws s3 cp {{ item }} s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/{{ item }}"
+      shell: "cd /etc/letsencrypt/live/{{ openvpn_server_domain }} && aws s3 cp {{ item }} s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/{{ item }}"
       with_items:
         - cert.pem
         - chain.pem
