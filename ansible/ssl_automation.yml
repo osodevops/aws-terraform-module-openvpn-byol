@@ -24,13 +24,11 @@
       rpm_key:
         key: "{{ epel_repo_gpg_key_url }}"
         state: present
-      register: epel_repo
 
     - name: Cerbot | Install Cerbot
       yum:
         name: certbot
         state: present
-      when: epel_repo.changed
 
     - name: Certbot | Stop VPN service
       systemd:
@@ -50,28 +48,28 @@
         state: directory
         mode: '0755'
         recurse: yes
-      when: fileCount|length > 3
+      when: s3fileCount|length > 3
 
     - name: Certbot | Download S3 certificate files
       command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/cert.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/cert.pem
-      when: fileCount|length > 3
+      when: s3fileCount|length > 3
 
     - name: Certbot | Download S3 certificate files
       command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/chain.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/chain.pem
-      when: fileCount|length > 3
+      when: s3fileCount|length > 3
 
     - name: Certbot | Download S3 certificate files
       command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/fullchain.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/fullchain.pem
-      when: fileCount|length > 3
+      when: s3fileCount|length > 3
 
     - name: Certbot | Download S3 certificate files
       command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/privkey.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/privkey.pem
-      when: fileCount|length > 3
+      when: s3fileCount|length == 3
       
     - name: Cerbot | Request certificate
       command: certbot certonly --standalone -d {{ openvpn_server_domain }} --email {{ ssl_admin_email }} --agree-tos --non-interactive
       register: certificate_request
-      when: s3fileCount|length == 0
+      when: s3fileCount|length == 1
 
     - name: Certbot | Start VPN service
       systemd:
@@ -80,7 +78,7 @@
       when: certificate_request.changed
 
     - name: Rename certificate directory
-      command: mv {{ openvpn_server_domain }}-* {{ openvpn_server_domain }}
+      shell: mv {{ openvpn_server_domain }}-* {{ openvpn_server_domain }}
       args:
        chdir: /etc/letsencrypt/live
        creates: /etc/letsencrypt/live/{{ openvpn_server_domain }}
