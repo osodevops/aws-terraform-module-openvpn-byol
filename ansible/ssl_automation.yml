@@ -48,23 +48,23 @@
         state: directory
         mode: '0755'
         recurse: yes
-      when: s3fileCount|length > 3
+      when: s3fileCount|length > 4
 
     - name: Certbot | Download S3 certificate files
       command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/cert.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/cert.pem
-      when: s3fileCount|length > 3
+      when: s3fileCount|length > 4
 
     - name: Certbot | Download S3 certificate files
       command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/chain.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/chain.pem
-      when: s3fileCount|length > 3
+      when: s3fileCount|length > 4
 
     - name: Certbot | Download S3 certificate files
       command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/fullchain.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/fullchain.pem
-      when: s3fileCount|length > 3
+      when: s3fileCount|length > 4
 
     - name: Certbot | Download S3 certificate files
       command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/privkey.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/privkey.pem
-      when: s3fileCount|length == 3
+      when: s3fileCount|length > 4
       
     - name: Cerbot | Request certificate
       command: certbot certonly --standalone -d {{ openvpn_server_domain }} --email {{ ssl_admin_email }} --agree-tos --non-interactive
@@ -77,24 +77,30 @@
         state: restarted
       when: certificate_request.changed
 
+    - name: Check the auto-generated cert path
+      stat:
+        path: /etc/letsencrypt/live/{{ openvpn_server_domain }}-*
+      when: certificate_request.changed
+      register: auto_gen_cert_path
+
     - name: Rename certificate directory
       shell: mv {{ openvpn_server_domain }}-* {{ openvpn_server_domain }}
       args:
        chdir: /etc/letsencrypt/live
        creates: /etc/letsencrypt/live/{{ openvpn_server_domain }}
-      register: certificate_dir
+      when: auto_gen_cert_path.stat.exists and auto_gen_cert_path.stat.isdir
 
     - name: Cerbot | Upload ca_bundle
       command: /usr/local/openvpn_as/scripts/confdba -mk cs.ca_bundle -v "/etc/letsencrypt/live/{{ openvpn_server_domain }}/fullchain.pem"
-      when: certificate_dir.changed
+      when: certificate_request.changed
 
     - name: Cerbot | Upload priv_key
       command: /usr/local/openvpn_as/scripts/confdba -mk cs.priv_key -v "/etc/letsencrypt/live/{{ openvpn_server_domain }}/privkey.pem"
-      when: certificate_dir.changed
+      when: certificate_request.changed
 
     - name: Certbot | Upload certificate
       command: /usr/local/openvpn_as/scripts/confdba -mk cs.cert -v "/etc/letsencrypt/live/{{ openvpn_server_domain }}/cert.pem"
-      when: certificate_dir.changed
+      when: certificate_request.changed
 
     - name: Certbot | Upload certs to S3
       shell: "cd /etc/letsencrypt/live/{{ openvpn_server_domain }} && aws s3 cp {{ item }} s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/{{ item }}"
@@ -103,7 +109,7 @@
         - chain.pem
         - fullchain.pem
         - privkey.pem
-      when: certificate_dir.changed
+      when: certificate_request.changed
 
     - name: Certbot | Restart VPN service
       systemd:
