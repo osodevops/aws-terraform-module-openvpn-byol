@@ -14,35 +14,62 @@
   tasks:
     - name: Cerbot | Check if EPEL repo is already configured.
       stat: path={{ epel_repofile_path }}
-      register: epel_repofile_result
 
     - name: Cerbot | Install EPEL repo.
       yum:
         name: "{{ epel_repo_url }}"
         state: present
-      register: result
-      when: not epel_repofile_result.stat.exists
 
     - name: Cerbot | Import EPEL GPG key.
       rpm_key:
         key: "{{ epel_repo_gpg_key_url }}"
         state: present
-      when: not epel_repofile_result.stat.exists
 
     - name: Cerbot | Install Cerbot
       yum:
         name: certbot
         state: present
-      register: certbot_installed
 
     - name: Certbot | Stop VPN service
       systemd:
         name: openvpnas
         state: stopped
 
+    - name: Certbot | Check if the certs exists in S3
+      shell: aws s3 ls s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/ | wc -l
+      register: fileCount
+
+    - set_fact:
+        s3fileCount: "{{ fileCount.stdout_lines|max }}"
+
+    - name: Create certificate path
+      file:
+        path: /etc/letsencrypt/live/{{ openvpn_server_domain }}/
+        state: directory
+        mode: '0755'
+        recurse: yes
+      when: s3fileCount|int > 2
+
+    - name: Certbot | Download S3 certificate files
+      command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/cert.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/cert.pem
+      when: s3fileCount|int > 2
+
+    - name: Certbot | Download S3 certificate files
+      command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/chain.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/chain.pem
+      when: s3fileCount|int > 2
+
+    - name: Certbot | Download S3 certificate files
+      command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/fullchain.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/fullchain.pem
+      when: s3fileCount|int > 2
+
+    - name: Certbot | Download S3 certificate files
+      command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/privkey.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/privkey.pem
+      when: s3fileCount|int > 2
+      
     - name: Cerbot | Request certificate
-      command: certbot certonly --standalone -d {{ openvpn_server_domain }} --email {{ ssl_admin_email }} --agree-tos
+      command: certbot certonly --standalone -d {{ openvpn_server_domain }} --email {{ ssl_admin_email }} --agree-tos --non-interactive
       register: certificate_request
+      when: s3fileCount|int == 0
 
     - name: Certbot | Start VPN service
       systemd:
@@ -50,22 +77,38 @@
         state: restarted
       when: certificate_request.changed
 
+    - name: Check the auto-generated cert path
+      stat:
+        path: /etc/letsencrypt/live/{{ openvpn_server_domain }}-*
+      register: auto_gen_cert_path
+
+    - name: Rename certificate directory
+      shell: mv {{ openvpn_server_domain }}-* {{ openvpn_server_domain }}
+      args:
+       chdir: /etc/letsencrypt/live
+       creates: /etc/letsencrypt/live/{{ openvpn_server_domain }}
+      when: auto_gen_cert_path.stat.exists and auto_gen_cert_path.stat.isdir
+
     - name: Cerbot | Upload ca_bundle
       command: /usr/local/openvpn_as/scripts/confdba -mk cs.ca_bundle -v "/etc/letsencrypt/live/{{ openvpn_server_domain }}/fullchain.pem"
+      when: certificate_request.changed
 
     - name: Cerbot | Upload priv_key
       command: /usr/local/openvpn_as/scripts/confdba -mk cs.priv_key -v "/etc/letsencrypt/live/{{ openvpn_server_domain }}/privkey.pem"
+      when: certificate_request.changed
 
     - name: Certbot | Upload certificate
       command: /usr/local/openvpn_as/scripts/confdba -mk cs.cert -v "/etc/letsencrypt/live/{{ openvpn_server_domain }}/cert.pem"
+      when: certificate_request.changed
 
     - name: Certbot | Upload certs to S3
-      command: aws s3 cp {{ item }} s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/{{ item }}
+      shell: "cd /etc/letsencrypt/live/{{ openvpn_server_domain }} && aws s3 cp {{ item }} s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/{{ item }}"
       with_items:
         - cert.pem
         - chain.pem
         - fullchain.pem
         - privkey.pem
+      when: certificate_request.changed
 
     - name: Certbot | Restart VPN service
       systemd:

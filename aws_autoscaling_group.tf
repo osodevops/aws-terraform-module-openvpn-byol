@@ -17,9 +17,9 @@ resource "aws_autoscaling_group" "openvpn" {
   name                 = "${upper(var.environment)}-OPENVPN-ASG"
   launch_configuration = aws_launch_configuration.openvpn_launch_config.name
   vpc_zone_identifier  = data.aws_subnet_ids.public.ids
-  min_size             = "${var.asg_min_size}"
-  max_size             = "${var.asg_max_size}"
-  desired_capacity     = "${var.asg_desired_capacity}"
+  min_size             = var.asg_min_size
+  max_size             = var.asg_max_size
+  desired_capacity     = var.asg_desired_capacity
 
   lifecycle {
     create_before_destroy = true
@@ -30,4 +30,3 @@ resource "aws_autoscaling_group" "openvpn" {
     map("key", "AWSInspectorEnabled", "value", "true", "propagate_at_launch", true),
   ])
 }
-

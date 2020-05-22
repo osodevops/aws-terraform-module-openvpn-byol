@@ -36,7 +36,7 @@
       - MariaDB-client
       - mariadb-libs
       - MySQL-python
-  
+
   - name: Copy .my.cnf file with credentials
     copy:
       dest: /etc/.my.cnf
@@ -47,15 +47,123 @@
         user={{ openvpn_database_user }}
         password={{ openvpn_database_password }}
         port={{ openvpn_database_port }}
-    register: db_creds  
+    register: db_creds
 
-  - name: Stop Openvpn server for to update DB credentials
+  - name: Check if databases are in place
+    command: mysql --defaults-extra-file=/etc/.my.cnf --host={{ openvpn_database_host }} --port={{ openvpn_database_port }} -p'{{ openvpn_database_password }}' --skip-column-names --execute="show databases;"
+    register: mysql_info_databases
+
+  - set_fact:
+      user_databases: "{{ (mysql_info_databases.stdout_lines|select('match', 'as_*')|list) }}"
+
+  - name: Create required databases for Openvpn
+    mysql_db:
+      login_host: "{{ openvpn_database_host }}"
+      login_password: "{{ openvpn_database_password }}"
+      login_user: "{{ openvpn_database_user }}"
+      login_port: "{{ openvpn_database_port }}"
+      name: "as_certs"
+      state: present
+    when: user_databases|length == 0
+
+  - name: Create new table as_userprop
+    mysql_db:
+      login_host: "{{ openvpn_database_host }}"
+      login_password: "{{ openvpn_database_password }}"
+      login_user: "{{ openvpn_database_user }}"
+      login_port: "{{ openvpn_database_port }}"
+      name: "as_userprop"
+      state: present
+    when: user_databases|length == 0
+
+  - name: Create new table as_config
+    mysql_db:
+      login_host: "{{ openvpn_database_host }}"
+      login_password: "{{ openvpn_database_password }}"
+      login_user: "{{ openvpn_database_user }}"
+      login_port: "{{ openvpn_database_port }}"
+      name: "as_config"
+      state: present
+    when: user_databases|length == 0
+
+  - name: Create new table as_log
+    mysql_db:
+      login_host: "{{ openvpn_database_host }}"
+      login_password: "{{ openvpn_database_password }}"
+      login_user: "{{ openvpn_database_user }}"
+      login_port: "{{ openvpn_database_port }}"
+      name: "as_log"
+      state: present
+    when: user_databases|length == 0
+
+  - name: Create new table as_cluster_db
+    mysql_db:
+      login_host: "{{ openvpn_database_host }}"
+      login_password: "{{ openvpn_database_password }}"
+      login_user: "{{ openvpn_database_user }}"
+      login_port: "{{ openvpn_database_port }}"
+      name: "as_cluster_db"
+      state: present
+    when: user_databases|length == 0  
+
+  - name: Create new table as_notifications
+    mysql_db:
+      login_host: "{{ openvpn_database_host }}"
+      login_password: "{{ openvpn_database_password }}"
+      login_user: "{{ openvpn_database_user }}"
+      login_port: "{{ openvpn_database_port }}"
+      name: "as_notifications"
+      state: present
+    when: user_databases|length == 0
+
+  - name: Database | Import web certificates before migration
+    command: /usr/local/openvpn_as/scripts/sacli --import GetActiveWebCerts
+    register: cert_import
+    when: user_databases|length == 0
+
+  - name: Stop Openvpn server for to migrate DB to RDS
     systemd:
       name: openvpnas
       state: stopped
-    when: db_creds.changed
-    register: openvpn_stopped
-  
+    when: cert_import.changed
+    register: openvpn_stop_for_db_update
+
+  - name: Migrate certification data to new database
+    command: /usr/local/openvpn_as/scripts/dbcvt -t certs -s sqlite:////usr/local/openvpn_as/etc/db/certs.db -d mysql://{{ openvpn_database_user }}:{{ openvpn_database_password }}@{{ openvpn_database_url }}/as_certs
+    when: openvpn_stop_for_db_update.changed
+    register: certs_migrated
+
+  - name: Migrate configuration data to new database
+    command: /usr/local/openvpn_as/scripts/dbcvt -t config -s sqlite:////usr/local/openvpn_as/etc/db/config.db -d mysql://{{ openvpn_database_user }}:{{ openvpn_database_password }}@{{ openvpn_database_url }}/as_config
+    when: certs_migrated.changed
+    register: config_migrated
+
+  - name: Migrate log data to new database
+    command: /usr/local/openvpn_as/scripts/dbcvt -t log -s sqlite:////usr/local/openvpn_as/etc/db/log.db -d mysql://{{ openvpn_database_user }}:{{ openvpn_database_password }}@{{ openvpn_database_url }}/as_log
+    when: config_migrated.changed
+    register: logs_migrated
+
+  - name: Migrate user data to new database
+    command: /usr/local/openvpn_as/scripts/dbcvt -t user_prop -s sqlite:////usr/local/openvpn_as/etc/db/userprop.db -d mysql://{{ openvpn_database_user }}:{{ openvpn_database_password }}@{{ openvpn_database_url }}/as_userprop
+    when: logs_migrated.changed
+    register: users_migrated
+
+  # - name: Migrate cluster to new database
+  #   command: /usr/local/openvpn_as/scripts/dbcvt -t cluster_db -s sqlite:////usr/local/openvpn_as/etc/db/userprop.db -d mysql://{{ openvpn_database_user }}:{{ openvpn_database_password }}@{{ openvpn_database_url }}/as_cluster_db
+  #   when: users_migrated.changed
+  #   register: cluster_migrated
+
+  # - name: Migrate notifications to new database
+  #   command: /usr/local/openvpn_as/scripts/dbcvt -t notification_db -s sqlite:////usr/local/openvpn_as/etc/db/userprop.db -d mysql://{{ openvpn_database_user }}:{{ openvpn_database_password }}@{{ openvpn_database_url }}/as_notifications
+  #   when: cluster_migrated.changed
+  #   register: notifications_migrated
+
+  - name: Stop Openvpn server for to restore RDS credentials
+    systemd:
+      name: openvpnas
+      state: stopped
+    when: user_databases|length > 1
+
   - name: Use MySQL database settings
     copy:
       dest: /usr/local/openvpn_as/etc/as.conf
@@ -90,7 +198,7 @@
         # notification DB
         notification_db=mysql://{{ openvpn_database_user }}:{{ openvpn_database_password }}@{{ openvpn_database_host }}:{{ openvpn_database_port }}/as_notification
         # log DB
-        log_db=sqlite:///~/db/log.db
+        log_db=mysql://{{ openvpn_database_user }}:{{ openvpn_database_password }}@{{ openvpn_database_host }}:{{ openvpn_database_port }}/as_log
         # wait this many seconds between failed retries
         db_retry.interval=1
         # how many retries to attempt before failing
@@ -155,7 +263,6 @@
         # VPN Server user settings
         vpn.server.user=openvpn_as
         vpn.server.group=openvpn_as
-    when: openvpn_stopped.changed
     register: config_updated
 
   - name: Start openvpnas server for after migration

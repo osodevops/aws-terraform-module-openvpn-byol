@@ -54,18 +54,18 @@ data "aws_iam_policy_document" "openvpn_eip" {
 }
 
 resource "aws_iam_role" "openvpn_role" {
-  name               = "${var.iam_role_name}"
+  name               = var.iam_role_name
   assume_role_policy = data.aws_iam_policy_document.openvpn_assume_role.json
 }
 
 resource "aws_iam_policy" "openvpn_policy" {
-  name        = "${var.iam_policy_name}"
+  name        = var.iam_policy_name
   description = "Allows the openvpn server to attach an EIP"
   policy      = data.aws_iam_policy_document.openvpn_eip.json
 }
 
 resource "aws_iam_instance_profile" "openvpn_profile" {
-  name = "${var.iam_instance_profile_name}"
+  name = var.iam_instance_profile_name
   role = aws_iam_role.openvpn_role.name
 }
 
