@@ -40,7 +40,7 @@
       register: fileCount
 
     - set_fact:
-        s3fileCount: "{{ fileCount.stdout_lines|length }}"
+        s3fileCount: "{{ fileCount.stdout_lines|max }}"
 
     - name: Create certificate path
       file:
@@ -48,28 +48,28 @@
         state: directory
         mode: '0755'
         recurse: yes
-      when: s3fileCount|length > 4
+      when: s3fileCount|int > 2
 
     - name: Certbot | Download S3 certificate files
       command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/cert.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/cert.pem
-      when: s3fileCount|length > 4
+      when: s3fileCount|int > 2
 
     - name: Certbot | Download S3 certificate files
       command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/chain.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/chain.pem
-      when: s3fileCount|length > 4
+      when: s3fileCount|int > 2
 
     - name: Certbot | Download S3 certificate files
       command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/fullchain.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/fullchain.pem
-      when: s3fileCount|length > 4
+      when: s3fileCount|int > 2
 
     - name: Certbot | Download S3 certificate files
       command: aws s3 cp s3://{{ s3_bucket }}/certs/{{ openvpn_server_domain }}/privkey.pem /etc/letsencrypt/live/{{ openvpn_server_domain }}/privkey.pem
-      when: s3fileCount|length > 4
+      when: s3fileCount|int > 2
       
     - name: Cerbot | Request certificate
       command: certbot certonly --standalone -d {{ openvpn_server_domain }} --email {{ ssl_admin_email }} --agree-tos --non-interactive
       register: certificate_request
-      when: s3fileCount|length == 1
+      when: s3fileCount|int == 0
 
     - name: Certbot | Start VPN service
       systemd:
@@ -80,7 +80,6 @@
     - name: Check the auto-generated cert path
       stat:
         path: /etc/letsencrypt/live/{{ openvpn_server_domain }}-*
-      when: certificate_request.changed
       register: auto_gen_cert_path
 
     - name: Rename certificate directory
