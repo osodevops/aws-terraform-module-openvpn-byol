@@ -13,7 +13,7 @@ resource "aws_rds_cluster_instance" "db_instance" {
   )
 
   lifecycle {
-    ignore_changes = ["cluster_identifier"]
+    ignore_changes = [cluster_identifier]
   }
 }
 
@@ -21,7 +21,6 @@ resource "aws_rds_cluster" "db_cluster" {
   cluster_identifier           = var.rds_cluster_identifier
   snapshot_identifier          = var.snapshot_identifier
   database_name                = var.rds_database_name
-  availability_zones           = [data.aws_availability_zones.available.names[0], data.aws_availability_zones.available.names[1], data.aws_availability_zones.available.names[2]]
   master_username              = var.rds_master_name
   master_password              = var.rds_master_password
   final_snapshot_identifier    = var.rds_final_snapshot
@@ -32,8 +31,6 @@ resource "aws_rds_cluster" "db_cluster" {
   db_subnet_group_name         = aws_db_subnet_group.db_subnet_group.id
   vpc_security_group_ids       = [aws_security_group.openvpn-rds-sg.id]
   storage_encrypted            = var.rds_storage_encrypted
-  multi_az                     = var.multi_az
-  publicly_accessible          = var.publicly_accessible
   apply_immediately            = var.apply_immediately
   deletion_protection          = var.deletion_protection
   tags = merge(
