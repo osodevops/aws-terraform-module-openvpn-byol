@@ -39,7 +39,7 @@ data "aws_iam_policy_document" "openvpn_eip" {
       "s3:GetObject"
     ]
 
-    resources = ["arn:aws:s3:::${aws_s3_bucket.ssm_ansible_bucket.name}"]
+    resources = ["arn:aws:s3:::${aws_s3_bucket.ssm_ansible_bucket.id}"]
     effect    = "Allow"
   }
 
