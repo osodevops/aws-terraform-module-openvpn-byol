@@ -96,26 +96,6 @@
       state: present
     when: user_databases|length == 0
 
-  - name: Create new table as_cluster_db
-    mysql_db:
-      login_host: "{{ openvpn_database_host }}"
-      login_password: "{{ openvpn_database_password }}"
-      login_user: "{{ openvpn_database_user }}"
-      login_port: "{{ openvpn_database_port }}"
-      name: "as_cluster_db"
-      state: present
-    when: user_databases|length == 0  
-
-  - name: Create new table as_notifications
-    mysql_db:
-      login_host: "{{ openvpn_database_host }}"
-      login_password: "{{ openvpn_database_password }}"
-      login_user: "{{ openvpn_database_user }}"
-      login_port: "{{ openvpn_database_port }}"
-      name: "as_notifications"
-      state: present
-    when: user_databases|length == 0
-
   - name: Database | Import web certificates before migration
     command: /usr/local/openvpn_as/scripts/sacli --import GetActiveWebCerts
     register: cert_import
@@ -147,16 +127,6 @@
     command: /usr/local/openvpn_as/scripts/dbcvt -t user_prop -s sqlite:////usr/local/openvpn_as/etc/db/userprop.db -d mysql://{{ openvpn_database_user }}:{{ openvpn_database_password }}@{{ openvpn_database_url }}/as_userprop
     when: logs_migrated.changed
     register: users_migrated
-
-  # - name: Migrate cluster to new database
-  #   command: /usr/local/openvpn_as/scripts/dbcvt -t cluster_db -s sqlite:////usr/local/openvpn_as/etc/db/userprop.db -d mysql://{{ openvpn_database_user }}:{{ openvpn_database_password }}@{{ openvpn_database_url }}/as_cluster_db
-  #   when: users_migrated.changed
-  #   register: cluster_migrated
-
-  # - name: Migrate notifications to new database
-  #   command: /usr/local/openvpn_as/scripts/dbcvt -t notification_db -s sqlite:////usr/local/openvpn_as/etc/db/userprop.db -d mysql://{{ openvpn_database_user }}:{{ openvpn_database_password }}@{{ openvpn_database_url }}/as_notifications
-  #   when: cluster_migrated.changed
-  #   register: notifications_migrated
 
   - name: Stop Openvpn server for to restore RDS credentials
     systemd:
@@ -194,9 +164,9 @@
         # configuration DB Local
         config_db_local=sqlite:///~/db/config_local.db
         # cluster DB
-        cluster_db=mysql://{{ openvpn_database_user }}:{{ openvpn_database_password }}@{{ openvpn_database_host }}:{{ openvpn_database_port }}/as_cluster
+        cluster_db=sqlite:///~/db/cluster-db.db
         # notification DB
-        notification_db=mysql://{{ openvpn_database_user }}:{{ openvpn_database_password }}@{{ openvpn_database_host }}:{{ openvpn_database_port }}/as_notification
+        notification_db=sqlite:///~/db/notification.db
         # log DB
         log_db=mysql://{{ openvpn_database_user }}:{{ openvpn_database_password }}@{{ openvpn_database_host }}:{{ openvpn_database_port }}/as_log
         # wait this many seconds between failed retries
