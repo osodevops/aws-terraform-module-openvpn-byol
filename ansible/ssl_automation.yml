@@ -12,23 +12,38 @@
     hostname: ${ec2_hostname}
     s3_bucket: ${s3_bucket}
   tasks:
-    - name: Cerbot | Check if EPEL repo is already configured.
+    - name: Cerbot | Check if EPEL repo is already configured for CentOS
       stat: path={{ epel_repofile_path }}
+      when: ansible_distribution == 'CentOS'
 
-    - name: Cerbot | Install EPEL repo.
+    - name: Cerbot | Install EPEL repo for CentOS
       yum:
         name: "{{ epel_repo_url }}"
         state: present
+      when: ansible_distribution == 'CentOS'
 
-    - name: Cerbot | Import EPEL GPG key.
+    - name: Cerbot | Import EPEL GPG key for CentOS
       rpm_key:
         key: "{{ epel_repo_gpg_key_url }}"
         state: present
+      when: ansible_distribution == 'CentOS'
 
-    - name: Cerbot | Install Cerbot
+    - name: Cerbot | Install Cerbot for CentOS
       yum:
         name: certbot
         state: present
+      when: ansible_distribution == 'CentOS'
+
+    - name: Cerbot | App Cerbot repository for Ubuntu
+      apt_repository:
+        repo: ppa:certbot/certbot
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: Cerbot | Install Cerbot for Ubuntu
+      apt:
+        name: python-certbot-apache
+        state: present
+      when: ansible_distribution == 'Ubuntu'
 
     - name: Certbot | Stop VPN service
       systemd:
@@ -77,12 +92,12 @@
         state: restarted
       when: certificate_request.changed
 
-    - name: Check the auto-generated cert path
+    - name: Cerbot | Check the auto-generated cert path
       stat:
         path: /etc/letsencrypt/live/{{ openvpn_server_domain }}-*
       register: auto_gen_cert_path
 
-    - name: Rename certificate directory
+    - name: Cerbot | Rename certificate directory
       shell: mv {{ openvpn_server_domain }}-* {{ openvpn_server_domain }}
       args:
        chdir: /etc/letsencrypt/live

@@ -4,24 +4,31 @@
   vars:
     full_system_update: ${full_system_update}
   tasks:
-    - name: update the system security
+    - name: Update | Run system security update for CentOS
       yum:
         name: "*"
         security: yes
         state: latest
+      when: ansible_distribution == 'CentOS'
+    
+    - name: Update | Run system security update for Ubuntu
+      apt:
+        name: "*"
+        state: latest
+      when: ansible_distribution == 'Ubuntu'
 
-    - name: restart system to reboot to newest kernel
+    - name: Update | Restart system to reboot to newest kernel
       shell: "sleep 5 && reboot"
       async: 1
       poll: 0
       when: ( full_system_update|bool )
 
-    - name: wait for 10 seconds
+    - name: Update | Wait for 10 seconds
       pause:
       seconds: 10
       when: ( full_system_update|bool )
 
-    - name: wait for the system to reboot
+    - name: Update | Wait for the system to reboot
       wait_for_connection:
       connect_timeout: 20
       sleep: 5

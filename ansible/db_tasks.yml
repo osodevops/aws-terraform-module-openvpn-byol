@@ -27,8 +27,9 @@
       gpgcheck: "{{ MariaDB_repo_gpgcheck }}"
       gpgkey: "{{ MariaDB_repo_gpg_url }}"
     register: mariadb_repo
+    when: ansible_distribution == 'CentOS'
 
-  - name: Install MariaDB Client
+  - name: Install MariaDB Client for CentOS
     yum:
       name: "{{ item }}"
       state: latest
@@ -36,6 +37,16 @@
       - MariaDB-client
       - mariadb-libs
       - MySQL-python
+    when: ansible_distribution == 'CentOS'
+
+  - name: Install MySQL Client for Ubuntu
+    apt:
+      pkg: "{{ item }}"
+      state: latest
+    with_items:
+      - mysql-client
+      - libmysqlclient20
+    when: ansible_distribution == 'Ubuntu'
 
   - name: Copy .my.cnf file with credentials
     copy:
