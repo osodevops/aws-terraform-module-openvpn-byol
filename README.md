@@ -71,8 +71,13 @@ To invoke the playbooks listed above use the SSM documents generated [here](http
 ```bash
 terraform apply -auto-approve -var="run_ssl_playbook=true" -target=module.vpn.aws_ssm_association.ssl_ansible_playbook[0]
 ```
-
 Please adjust the SSM code to meet your needs, they are only examples of what is possible.
+
+In order for the AutoScalingGroup's to run the Ansible playbooks as part of the user-data procedure all of the Ansible playbooks are stored in S3 and pulled down by the [bash script](https://github.com/osodevops/aws-terraform-module-openvpn-byol/blob/master/scripts/user_data.sh) and run locally as follows:
+```bash
+ansible-playbook -v /opt/openvpn_ssl_ansible_playbook.yaml
+```
+Should you wish you can also pull down and run the ansible playbooks locally on the EC2 instance via SSM. However be aware that due to the conditional logic used in the Ansible playbooks, you cannot use "Check Mode". You will recieve an error from Ansible if you use `--check` when running the Ansible playbooks, this is expected.
 
 **WARNING**
 
