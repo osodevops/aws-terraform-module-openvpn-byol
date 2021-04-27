@@ -101,8 +101,8 @@ The following arguments are supported:
 | iam_policy_name | Name of the IAM policy used	 | string | n/a | yes |
 | iam_instance_profile_name | Name of the IAM instance policy used | string | n/a | yes |
 | key_name | EC2 SSH key used for deployment	 | string | n/a | yes |
-| rds_backup_retention_period |  | string | n/a | yes |
-| rds_preferred_backup_window |  | string | n/a | yes |
+| rds_backup_retention_period | Set the rention period for the RDS backups | string | n/a | yes |
+| rds_preferred_backup_window | Set the preferred backup window for the RDS instance | string | n/a | yes |
 | rds_maintenance_window | | string | n/a | yes |
 | rds_storage_encrypted | Encrypt RDS, yes/no? | string | true | yes |
 | rds_master_name | Set the DB username	 | string | n/a | yes |
