@@ -94,57 +94,57 @@ The following arguments are supported:
 | asg_min_size | Minimum size of ASG | string | 1 | no |
 | asg_max_size | Maximum size of ASG | string | 1 | no |
 | asg_desired_capacity | Desired capacity of ASG | string | 1 | no |
-| db_instance_type | Size of the RDS instance | string | db.t3.medium | yes |
-| ec2_instance_type | Size of the EC2 instance | string | t3a.small | yes |
+| db_instance_type | Size of the RDS instance | string | db.t2.small | yes |
+| ec2_instance_type | Size of the EC2 instance | string | t2.small | yes |
 | environment | DEV/MGMT/TEST/PROD? | string | n/a | no |
 | iam_role_name | Name of the IAM role used	 | string | n/a | yes |
 | iam_policy_name | Name of the IAM policy used	 | string | n/a | yes |
 | iam_instance_profile_name | Name of the IAM instance policy used | string | n/a | yes |
 | key_name | EC2 SSH key used for deployment	 | string | n/a | yes |
-| rds_backup_retention_period | Set the rention period for the RDS backups | string | n/a | yes |
-| rds_preferred_backup_window | Set the preferred backup window for the RDS instance | string | n/a | yes |
-| rds_maintenance_window | | string | n/a | yes |
-| rds_storage_encrypted | Encrypt RDS, yes/no? | string | true | yes |
+| rds_backup_retention_period | Set the rention period for the RDS backups | string | 7 | no |
+| rds_preferred_backup_window | Set the preferred backup window for the RDS instance | string | 01:00-03:00 | no |
+| rds_maintenance_window | Set the maintenance window for the RDS instance	 | string | sun:03:00-sun:04:00 | no |
+| rds_storage_encrypted | Encrypt RDS, yes/no? | string | true | no |
 | rds_master_name | Set the DB username	 | string | n/a | yes |
 | rds_master_password | Set the DB password | string | n/a | yes |
-| rds_database_name | Set the name of the DB | string | n/a | yes |
-| rds_cluster_identifier | Name of the RDS cluster | string | n/a | yes |
-| rds_instance_name | RDS instance name	| string | n/a | yes |
-| rds_subnet_group | Subnet group used for the deployment	| string | n/a | yes |
-| rds_final_snapshot | Set the name for the final snapshot if an RDS instance is terminated | string | n/a | yes |
-| rds_port | RDS port for the database | string | n/a | yes |
+| rds_database_name | Set the name of the DB | string | openvpndb | no |
+| rds_cluster_identifier | Name of the RDS cluster | string | openvpn-database-cluster | no |
+| rds_instance_name | RDS instance name	| string | openvpn-database-instance | no |
+| rds_subnet_group | Subnet group used for the deployment	| string | openvpn-db-subnet-group | no |
+| rds_final_snapshot | Set the name for the final snapshot if an RDS instance is terminated | string | openvpn-db-snapshot-final | no |
+| rds_port | RDS port for the database | string | 3306 | no |
 | r53_domain_name | Set the domain name used by the OpenVPN server | string | n/a | yes |
 | r53_hosted_zone_id | R53 hosted zone used by the OpenVPN server | string | n/a | yes |
 | vpc_id | Set the VPC ID	| string | n/a | yes |
 | vpc_cidr_range | CIDR Range for the VPC | string | n/a | yes |
 | aws_region | Region used in AWS | string | n/a | yes |
 | common_tags | Common tags used for all AWS resources in the TF module | string | n/a | yes |
-| s3_bucket_acl | S3 Acess controls | string | n/a | yes |
+| s3_bucket_acl | S3 Acess controls | string | private | no |
 | s3_bucket_force_destroy | Do you want to force destruction of S3 objects when rebuilding the TF stack?	 | string | n/a | yes |
 | s3_bucket_name_ansible | Set the name of the S3 bucket used	 | string | n/a | yes |
 | s3_bucket_policy | Set a custom S3 policy used by the S3 bucket	 | string | n/a | yes |
-| bucket_versioning | Set S3 bucket versioning? | string | n/a | yes |
-| s3_sse_algorithm | Which algorithm to use for S3 encryption | string | KMS | yes |
-| mariadb_repo_url | Repo URL for MariaDB | string | n/a | yes |
-| mariadb_repo_enable | Enable repo for MariaDB | string | n/a | yes |
-| mariadb_repo_gpgcheck | GPG check MariaDB repo | string | n/a | yes |
-| mariadb_repo_gpg_url | GPG check key url | string | n/a | yes |
-| openvpn_database_user | OpenVPN database user | string | n/a | yes |
+| bucket_versioning | Set S3 bucket versioning? | string | false | no |
+| s3_sse_algorithm | Which algorithm to use for S3 encryption | string | AES256 | no |
+| mariadb_repo_url | Repo URL for MariaDB | string | http://yum.mariadb.org/10.1/centos7-amd64 | no |
+| mariadb_repo_enable | Enable repo for MariaDB | string | yes | no |
+| mariadb_repo_gpgcheck | GPG check MariaDB repo | string | yes | no |
+| mariadb_repo_gpg_url | GPG check key url | string | https://yum.mariadb.org/RPM-GPG-KEY-MariaDB | no |
+| openvpn_database_user | OpenVPN database user | string | openvpn-db-user | no |
 | openvpn_dns_name | URL for the OpenVPN database | string | n/a | yes |
 | ec2_hostname | hostname of the ec2 instance | string | n/a | yes |
 | ssl_admin_email | set an email for the ssl certificates, letsencrypt will notify you when certs expire | string | n/a | yes |
-| epel_repofile_path | EPEL repo file path | string | n/a | yes |
-| epel_repo_gpg_key_url | EPEL GPG key URL | string | n/a | yes |
-| epel_repo_url | EPEL Repo URL | string | n/a | yes |
+| epel_repofile_path | EPEL repo file path | string | /etc/yum.repos.d/epel.repo | no |
+| epel_repo_gpg_key_url | EPEL GPG key URL | string | https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7 | no |
+| epel_repo_url | EPEL Repo URL | string | https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm | no |
 | snapshot_identifier | Set the name for an existing RDS snapshot | string | n/a | yes |
 | ssm_parameter_name | Set the SSM parameter name for the openvpn password | string | n/a | yes |
 | private_network_access_1 | Set the network address that OpenVPN will allow routing access to | string | n/a | yes |
 | private_network_access_2 | Set the network address that OpenVPN will allow routing access to | string | n/a | yes |
-| deletion_protection | RDS delete protection | string | n/a | yes |
-| multi_az | RDS multi AZ | string | n/a | yes |
-| apply_immediately | RDS apply changes immediatly option | string | n/a | yes |
-| aws_ami_filter | Set a custom filter for the OpenVPN access server | string | n/a | yes |
-| vpn_tunnel_setting | Set the VPN tunneling mode to be ON or OFF | string | n/a | yes |
+| deletion_protection | RDS delete protection | string | true | no |
+| multi_az | RDS multi AZ | string | false | no |
+| apply_immediately | RDS apply changes immediatly option | string | false | no |
+| aws_ami_filter | Set a custom filter for the OpenVPN access server | string | OPENVPN-*| no |
+| vpn_tunnel_setting | Set the VPN tunneling mode to be ON or OFF | string | false | no |
 
 ## Help
 
