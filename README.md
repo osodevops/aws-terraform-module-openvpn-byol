@@ -35,6 +35,53 @@ module "openvpn" {
 }
 ```
 
+### Using Regular Terraform Commands:
+*You might have to initialise the terraform workspace, in order to do so run:*
+```bash
+terraform init -reconfigure
+```
+
+1. Check that your code is good and what you are building, run:
+```bash
+terraform plan -refresh=true
+```
+
+You should see an output from terraform suggesting building a set of services;
+- EC2 AutoScalingGroup for the OpenVPN server.
+- S3 bucket with an s3 bucket policy.
+- S3 objects for the Ansible playbooks.
+- RDS Aurora cluster.
+
+2. When you are happy with the proposed creations, changes, execute the following:
+```bash
+terraform apply -auto-approve
+```
+
+### Ansible Playbooks
+
+OpenVPN Access Server is not very automation friendly, hence there are times when we may need to manually run the Ansible playbooks that configure the VPN service. There are currently 3 ansible playbooks that configure the OpenVPN server.
+1. db_tasks.yaml
+  * This playbook is used to both migrate the database of a new OpenVPN implementation to RDS and also restore the OpenVPN configuration against a current OpenVPN database in RDS. This is the default playbook run against the server during a deployment, there is conditional logic in the playbook to know when to migrate and when to restore the database.
+2. ssl_automation.yaml
+  * This playbook generates a custom SSL certificate using Letsencrypt, which gets ingested into OpenVPN. The certificate lasts for 60 days. Simply run the playbook to renew the certificate.
+3. openvpn_update_ansible_playbook.yaml 
+  * This playbook will update the packages on the server. OpenVPN servers can become long-lived hence they need to be updated from time to time. You could setup a cron in Cloudwatch to run this command on a regular basis.
+
+To invoke the playbooks listed above use the SSM documents generated [here](https://github.com/osodevops/aws-terraform-module-openvpn-byol/blob/master/aws_ssm_commands.tf) and with the following terraform command;
+```bash
+terraform apply -auto-approve -var="run_ssl_playbook=true" -target=module.vpn.aws_ssm_association.ssl_ansible_playbook[0]
+```
+
+Please adjust the SSM code to meet your needs, they are only examples of what is possible.
+
+**WARNING**
+OpenVPN is an expert level program, the application is very unforgiving if mistakes are made. Only run the commands below if you know what you are doing. If debugging is required please logon via SSM directly to the server and check the `/var/log/opevpnas.log` and query the database for configuration settings via the `./sacli` tool. 
+
+Please use the following guide for specific [OpenVPN Access Server commands](https://openvpn.net/access-server-manual/introduction/), there is a lot of good documentation in there.
+
+Be aware that if you use Google Authentication with OpenVPN Access Server, you will need to run [these commands](https://openvpn.net/vpn-server-resources/google-authenticator-multi-factor-authentication/) locally on the EC2 instance in order to reset users tokens.
+**WARNING**
+
 ## Inputs
 
 The following arguments are supported:
