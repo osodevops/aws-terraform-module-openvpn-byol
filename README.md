@@ -137,14 +137,14 @@ The following arguments are supported:
 | epel_repo_gpg_key_url | EPEL GPG key URL | string | n/a | yes |
 | epel_repo_url | EPEL Repo URL | string | n/a | yes |
 | snapshot_identifier | Set the name for an existing RDS snapshot | string | n/a | yes |
-| ssm_parameter_name |  | string | n/a | yes |
-| private_network_access_1 |  | string | n/a | yes |
-| private_network_access_2 |  | string | n/a | yes |
+| ssm_parameter_name | Set the SSM parameter name for the openvpn password | string | n/a | yes |
+| private_network_access_1 | Set the network address that OpenVPN will allow routing access to | string | n/a | yes |
+| private_network_access_2 | Set the network address that OpenVPN will allow routing access to | string | n/a | yes |
 | deletion_protection | RDS delete protection | string | n/a | yes |
 | multi_az | RDS multi AZ | string | n/a | yes |
 | apply_immediately | RDS apply changes immediatly option | string | n/a | yes |
 | aws_ami_filter | Set a custom filter for the OpenVPN access server | string | n/a | yes |
-| vpn_tunnel_setting |  | string | n/a | yes |
+| vpn_tunnel_setting | Set the VPN tunneling mode to be ON or OFF | string | n/a | yes |
 
 ## Help
 
