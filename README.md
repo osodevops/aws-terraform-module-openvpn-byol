@@ -1,13 +1,13 @@
-[![OSO DevOps][logo]](https://osodevops.io)
+[<img src="https://osodevops.io/assets/images/logo-purple-b3af53cc.svg" width="250"/>](https://osodevops.io)
 
-# aws-terraform-module-openvpn
+# aws-terraform-module-openvpn-byol
 ---
 
-This project is part of our open source DevSecOps adoption approach. 
+This project is part of our open source DevOps adoption approach. 
 
 It's 100% Open Source and licensed under the [APACHE2](LICENSE).
 
-This module deploys OpenVPN Access Server with an RDS backend and Letsencrypt for SSL certificate generation.
+This module deploys ready-to-go OpenVPN Access Server AMI with an RDS backend and Letsencrypt for SSL certificate generation.
 
 The module requires the following:
 * `terraform` version >= 0.12.0
@@ -93,13 +93,13 @@ The following arguments are supported:
 
 **Got a question?**
 
-File a GitHub [issue](https://github.com/osodevops/aws-terraform-module-codebuild-packer/issues), send us an [email][email] or tweet us [twitter][twitter].
+File a GitHub [issue](https://github.com/osodevops/aws-terraform-module-openvpn-byol/issues), send us an [email][email] or tweet us [twitter][twitter].
 
 ## Contributing
 
 ### Bug Reports & Feature Requests
 
-Please use the [issue tracker](https://github.com/osodevops/aws-terraform-module-codebuild-packer/issues) to report any bugs or file feature requests.
+Please use the [issue tracker](https://github.com/osodevops/aws-terraform-module-openvpn-byol/issues) to report any bugs or file feature requests.
 
 ### Developing
 
@@ -117,7 +117,7 @@ In general, PRs are welcome. We follow the typical "fork-and-pull" Git workflow.
 
 ## Copyrights
 
-Copyright © 2018-2019 [OSO DevOps](https://osodevops.io)
+Copyright © 2019-2021 [OSO DevOps](https://osodevops.io)
 
 ## License 
 
@@ -148,11 +148,15 @@ All other trademarks referenced herein are the property of their respective owne
 
 ## About
 
-[![OSO DevOps][logo]][website]
+[<img src="https://osodevops.io/assets/images/logo-purple-b3af53cc.svg" width="250"/>](https://osodevops.io)
 
-We are a cloud consultancy specialising in transforming technology organisations through DevOps practices. We help organisations accelerate their capabilities for application delivery and minimize the time-to-market for software-driven innovation. 
+We are a cloud consultancy specialising in transforming technology organisations through DevOps practices. 
+We help organisations accelerate their capabilities for application delivery and minimize the time-to-market for software-driven innovation. 
 
 Check out [our other projects][github], [follow us on twitter][twitter], or [hire us][hire] to help with your cloud strategy and implementation.
+
+[![README Footer][readme_footer_img]][readme_footer_link]
+[![Beacon][beacon]][website]
 
   [logo]: https://osodevops.io/assets/images/logo-purple-b3af53cc.svg
   [website]: https://osodevops.io/
