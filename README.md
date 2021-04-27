@@ -75,11 +75,13 @@ terraform apply -auto-approve -var="run_ssl_playbook=true" -target=module.vpn.aw
 Please adjust the SSM code to meet your needs, they are only examples of what is possible.
 
 **WARNING**
+
 OpenVPN is an expert level program, the application is very unforgiving if mistakes are made. Only run the commands below if you know what you are doing. If debugging is required please logon via SSM directly to the server and check the `/var/log/opevpnas.log` and query the database for configuration settings via the `./sacli` tool. 
 
 Please use the following guide for specific [OpenVPN Access Server commands](https://openvpn.net/access-server-manual/introduction/), there is a lot of good documentation in there.
 
 Be aware that if you use Google Authentication with OpenVPN Access Server, you will need to run [these commands](https://openvpn.net/vpn-server-resources/google-authenticator-multi-factor-authentication/) locally on the EC2 instance in order to reset users tokens.
+
 **WARNING**
 
 ## Inputs
