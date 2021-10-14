@@ -1,3 +1,15 @@
+# Compiled files
+*.tfstate
+*.tfstate.backup
+
+# Module directory
+.terraform
+.idea
+*.iml
+
+.build-harness
+build-harness
+
 # Created by .ignore support plugin (hsz.mobi)
 ### Example user template
 
